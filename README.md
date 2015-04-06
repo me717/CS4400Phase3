@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # CS4400Phase3
 Final project for CS 4400: Intro to Database Systems
 
@@ -15,3 +16,20 @@ Final project for CS 4400: Intro to Database Systems
 1. Go into the repo directory
 2. Run 'npm start' to start the server
 3. Go to localhost:3000 to see results
+=======
+# CS4400Phase3
+Final project for CS 4400: Intro to Database Systems
+
+## First-time Setup
+-Make sure you have nodejs and npm installed
+  -To test this, run node -v and npm -v.  The output should be the current version
+  -Ubuntu users need to install nodejs-legacy.  This is easily done via apt-get
+-Clone this repo into the desired location
+-cd into the repo's directory.
+-Run 'npm install' to install any missing dependencies
+
+## How to run
+-Go into the repo directory
+-Run 'npm start' to start the server
+-Go to localhost:3000 to see results
+>>>>>>> f8d89384e038d3c9dba60ab47456ea65cac7746c
