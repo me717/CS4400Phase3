@@ -8,6 +8,8 @@ Final project for CS 4400: Intro to Database Systems
 -Clone this repo into the desired location
 -cd into the repo's directory.
 -Run 'npm install' to install any missing dependencies
+-run 'git update-index --assume-unchanged routes/credentials.js' (keeps confidential info from being pushed to the server)
+-update routes/credentials.js with the appropriate login info for your machine
 
 ## How to run
 -Go into the repo directory
