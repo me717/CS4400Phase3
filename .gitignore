@@ -1,3 +1,6 @@
+# Do not update credentials
+routes/credentials.js
+
 # Logs
 logs
 *.log
