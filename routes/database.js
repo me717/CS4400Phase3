@@ -42,6 +42,35 @@ router.post('/register', function(req, res, next) {
     });
 });
 
+//Create Profile
+router.post('/profile', function(req, res, next){
+    var query = "INSERT INTO StudentAndFaculty" +
+                    "(username, firstName, lastName, dob, gender, email, " +
+                    "address, isFaculty, dept) VALUES " +
+                    "({username}, {firstName}, {lastName}, {dob}, {gender}, {email}, " +
+                    "{address}, {isFaculty}, {dept})";
+    query = format(query, {
+        username: req.query.username,
+        firstName: req.query.firstName,
+        lastName: req.query.lastName,
+        dob: req.query.dob,
+        gender: req.query.dob,
+        email: req.query.email,
+        address: req.query.address,
+        isFaculty: req.query.isFaculty,
+        dept: req.query.dept
+    });
+    executeQuery(query, function(error, results, fields){
+        if(!error) {
+            res.status(200);
+            res.send(results);
+        } else {
+            //TODO error handling
+            res.status(500);
+        }
+    })
+});
+
 //Track location
 router.get('/trackLocation', function(req, res, next) {
     var query = "SELECT Book.shelfNumber, Shelf.aisleNumber, " +
