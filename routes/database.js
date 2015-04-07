@@ -14,11 +14,15 @@ router.get('/login', function(req, res, next) {
                         password: req.query.password
     });
     executeQuery(query, function(error, results, fields){
-        if(results.length) {
+        if(error) {
+            console.log(error.code);
+        } else if(results.length) {
             res.status(200);
             res.send(results);
         } else {
-            res.render('index', { title: "Empty"});
+            // res.render('index', { title: "Empty"});
+            res.status(500);
+            res.send(null);
         }
     });
 });
@@ -38,7 +42,7 @@ router.post('/register', function(req, res, next) {
         } else {
             //TODO error handling
             res.status(500);
-        }
+            res.send(null);        }
     });
 });
 
@@ -129,6 +133,7 @@ router.get('/frequentUserReport', function(req, res, next) {
 router.get('/popularSubjectReport', function(req, res, next) {
 
 });
+
 //HELPER FUNCTION
 function executeQuery(query, callback) {
     var connection = mysql.createConnection(credentials);
