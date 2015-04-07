@@ -24,7 +24,7 @@ router.get('/login', function(req, res, next) {
 });
 
 //Register
-router.post('/register', function(req, res, next)) {
+router.post('/register', function(req, res, next) {
     var query = "INSERT INTO User(username, password)"
     query = query + "VALUES ('{username}', '{password}')";
     query = format(query, {
@@ -40,10 +40,10 @@ router.post('/register', function(req, res, next)) {
             res.status(500);
         }
     });
-}
+});
 
 //Track location
-router.get('/trackLocation', function(req, res, next)) {
+router.get('/trackLocation', function(req, res, next) {
     var query = "SELECT Book.shelfNumber, Shelf.aisleNumber, " +
                 "Floor.floorNumber, Book.subject " + 
                 "FROM Book " +
@@ -53,7 +53,7 @@ router.get('/trackLocation', function(req, res, next)) {
     query = format(query, {
         isbn: req.query.isbn
     });
-}
+});
 
 function executeQuery(query, callback) {
     var connection = mysql.createConnection(credentials);
