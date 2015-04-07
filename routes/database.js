@@ -71,6 +71,17 @@ router.post('/profile', function(req, res, next){
     })
 });
 
+//Search Books
+router.get('/searchBooks', function(req, res, next) {
+
+});
+
+//Future Hold Request
+router.post('/futureHold', function(req, res, next) {
+
+});
+
+
 //Track location
 router.get('/trackLocation', function(req, res, next) {
     var query = "SELECT Book.shelfNumber, Shelf.aisleNumber, " +
@@ -84,6 +95,41 @@ router.get('/trackLocation', function(req, res, next) {
     });
 });
 
+//checkout
+router.post('/checkout', function(req, res, next) {
+
+});
+
+//return
+router.post('/return', function(req, res, next) {
+
+});
+
+//penalty
+router.post('/penalty', function(req, res, next) {
+
+});
+
+//Damaged Books Report
+router.get('/damagedBooksReport', function(req, res, next) {
+
+});
+
+//Popular Books Report
+router.get('/popularBooksReport', function(req, res, next) {
+
+});
+
+//Frequent User Report
+router.get('/frequentUserReport', function(req, res, next) {
+
+});
+
+//Popular Subject Report
+router.get('/popularSubjectReport', function(req, res, next) {
+
+});
+//HELPER FUNCTION
 function executeQuery(query, callback) {
     var connection = mysql.createConnection(credentials);
     connection.connect(function(err) {
