@@ -87,21 +87,23 @@ router.post('/futureHold', function(req, res, next) {
 //Track location
 router.get('/trackLocation', function(req, res, next) {
     var query = "SELECT Book.shelfNumber, Shelf.aisleNumber, " +
-                "Floor.floorNumber, Book.subject " + 
+                "Floor.floorNumber, Book.subjectName " + 
                 "FROM Book " +
                 "JOIN Shelf ON Book.shelfNumber = Shelf.shelfNumber " +
-                "JOIN Floor ON Shelf.floorNumber = Floor.floorNumber" +
-                "WHERE Book.isbn = {isbn}";
+                "JOIN Floor ON Shelf.floorNumber = Floor.floorNumber " +
+                "WHERE Book.isbn = '{isbn}'";
     query = format(query, {
         isbn: req.query.isbn
     });
+    console.log(query);
     executeQuery(query, function(error, results, fields){
-    if(error) {
-        res.status(500);
-        res.send(error);  
-    }
-    res.status(200);
-    res.send(results);
+        if(error) {
+            res.status(500);
+            res.send(error);  
+        }
+        res.status(200);
+        res.send(results);
+    });
 });
 
 //checkout
