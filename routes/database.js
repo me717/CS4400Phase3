@@ -15,15 +15,12 @@ router.get('/login', function(req, res, next) {
     });
     executeQuery(query, function(error, results, fields){
         if(error) {
-            console.log(error.code);
-        } else if(results.length) {
-            res.status(200);
-            res.send(results);
-        } else {
-            // res.render('index', { title: "Empty"});
             res.status(500);
-            res.send(null);
+            res.send(error);  
         }
+        res.status(200);
+        res.send(results);
+
     });
 });
 
@@ -42,7 +39,7 @@ router.post('/register', function(req, res, next) {
         } else {
             //TODO error handling
             res.status(500);
-            res.send(null);        }
+            res.send(error);        }
     });
 });
 
@@ -71,6 +68,7 @@ router.post('/profile', function(req, res, next){
         } else {
             //TODO error handling
             res.status(500);
+            res.send(error);
         }
     })
 });
