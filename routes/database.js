@@ -95,6 +95,13 @@ router.get('/trackLocation', function(req, res, next) {
     query = format(query, {
         isbn: req.query.isbn
     });
+    executeQuery(query, function(error, results, fields){
+    if(error) {
+        res.status(500);
+        res.send(error);  
+    }
+    res.status(200);
+    res.send(results);
 });
 
 //checkout
