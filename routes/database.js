@@ -106,6 +106,14 @@ router.get('/searchBooks', function(req, res, next) {
     });
 });
 
+router.post('/placeHold', function(req, res, next) {
+
+});
+
+router.post('/extension', function(req, res, next) {
+
+});
+
 //Future Hold Request
 router.post('/futureHold', function(req, res, next) {
 
