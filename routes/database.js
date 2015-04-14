@@ -75,7 +75,35 @@ router.post('/profile', function(req, res, next){
 
 //Search Books
 router.get('/searchBooks', function(req, res, next) {
-
+    var query = "SELECT Book.isbn AS isbn, Book.title AS title, Book.publisher AS publisher, " +
+                "Book.edition AS edition, BookCopy.copyNumber AS copyNumber, " + 
+                "Authors.name AS author, COUNT(*) AS numberAvailable " +
+                "FROM Book JOIN Authors ON Book.isbn = Authors.isbn " +
+                "JOIN BookCopy ON Book.isbn = BookCopy.isbn " +
+                "WHERE (Authors.name = '{author}' OR {author} IS NULL) " +
+                "(Book.title = '{title}' OR {title} IS NULL) " +
+                "(Book.isbn = '{isbn}' OR {isbn} IS NULL) " + 
+                "(Book.edition = '{edition}' OR {edition} IS NULL) " +
+                "(Book.title = '{publisher}' OR {publisher} IS NULL) " +
+                "AND (BookCopy.isCheckedOut = 0) " +
+                "AND (BookCopy.isOnHold = 0) " +
+                "AND (BookCopy.isDamaged = 0) " +
+                "GROUP BY Book.isbn ";
+    query = format(query, {
+        isbn: req.query.isbn,
+        edition: req.query.edition,
+        author: req.query.author,
+        title: req.query.title,
+        publisher: req.query.publisher
+    });
+    executeQuery(query, function(error, results, fields){
+        if(error) {
+            res.status(500);
+            res.send(error);  
+        }
+        res.status(200);
+        res.send(results);
+    });
 });
 
 //Future Hold Request
