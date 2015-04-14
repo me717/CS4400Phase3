@@ -1,5 +1,17 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  .ui.page.grid
+    .row
+        .eight.wide.column
+            h1(class="ui header") Library Database System
+        .eight.wide.column
+            form(class="ui form" action="javascript:alert( 'success!' );")
+                .two.fields
+                    field
+                        label Username
+                        input(type="text" id="login-username" placeholder="Username")
+                    field
+                        label Password
+                        input(type="text" id="login-password" placeholder="Password")
+                    a(class="ui submit button" id="login-btn") Login

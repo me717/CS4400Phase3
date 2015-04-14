@@ -2,6 +2,11 @@ doctype html
 html
   head
     title= title
+    link(rel='stylesheet', href='/stylesheets/semantic.min.css')
     link(rel='stylesheet', href='/stylesheets/style.css')
+    script(src="https://code.jquery.com/jquery-1.10.2.js")
+    script(src="/scripts/semantic.min.js")
+    script(src="/scripts/actions.js")
   body
+    include header
     block content
