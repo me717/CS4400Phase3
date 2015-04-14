@@ -4,7 +4,6 @@ var format = require('string-template');
 
 var credentials = require('./credentials');
 var router = express.Router();
-
 //Login
 router.get('/login', function(req, res, next) {
     var query = "SELECT username FROM User WHERE '{username}' = username";
@@ -18,6 +17,7 @@ router.get('/login', function(req, res, next) {
             res.status(500);
             res.send(error);  
         }
+        req.session.username = results[0].username;
         res.status(200);
         res.send(results);
 
@@ -51,7 +51,8 @@ router.post('/profile', function(req, res, next){
                     "({username}, {firstName}, {lastName}, {dob}, {gender}, {email}, " +
                     "{address}, {isFaculty}, {dept})";
     query = format(query, {
-        username: req.query.username,
+        // username: req.query.username,
+        username: req.session.username,
         firstName: req.query.firstName,
         lastName: req.query.lastName,
         dob: req.query.dob,
@@ -108,7 +109,7 @@ router.get('/searchBooks', function(req, res, next) {
 
 router.post('/placeHold', function(req, res, next) {
     var updateQuery = "UPDATE BookCopy SET isOnHold = 1 " +
-                "WHERE isbn = {isbn} AND copyNumber = {copyNumber} "
+                "WHERE isbn = {isbn} AND copyNumber = {copyNumber} " +
                 "AND isOnHold = 0 AND isCheckedOut = 0 AND isDamaged = 0";
     updateQuery = format(updateQuery, {
         isbn: req.query.isbn,
@@ -124,10 +125,13 @@ router.post('/placeHold', function(req, res, next) {
     var insertQuery = "INSERT INTO Issues (username, isbn, copyNumber, " + 
                         "dateOfIssue, returnDate, extensionDate, countOfExtensions) " +
                         "SELECT username, '{isbn}', {copyNumber}, " + 
-                        "CURDATE(), CURDATE(), DATE_ADD(CURDATE(), INTERVAL 17 DAY), 0 "
+                        "CURDATE(), DATE_ADD(CURDATE(), CURDATE(), INTERVAL 17 DAY), 0 " +
                         "FROM StudentAndFaculty WHERE username = '{username}' AND isDebarred = 0";
     insertQuery = format(insertQuery, {
-
+        isbn: req.query.isbn,
+        copyNumber: req.query.copyNumber,
+        username: req.session.username
+        // username: req.query.username
     });
     executeQuery(insertQuery, function(error, results, fields){
         if(error) {
