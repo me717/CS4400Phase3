@@ -107,7 +107,32 @@ router.get('/searchBooks', function(req, res, next) {
 });
 
 router.post('/placeHold', function(req, res, next) {
+    var updateQuery = "UPDATE BookCopy SET isOnHold = 1 " +
+                "WHERE isbn = {isbn} AND copyNumber = {copyNumber} "
+                "AND isOnHold = 0 AND isCheckedOut = 0";
+    updateQuery = format(updateQuery, {
+        isbn: req.query.isbn,
+        copyNumber: req.query.copyNumber
+    });
+    executeQuery(updateQuery, function(error, results, fields) {
+        if(error) {
+            res.status(500);
+            res.send(error);
+        }
+    });
 
+    var insertQuery = "INSERT INTO Issues (username, isbn, copyNumber, " + 
+                        "dateOfIssue, returnDate, extensionDate, countOfExtensions) " +
+                        "VALUES ({username}, {isbn}, {copyNumber}, " + 
+                        "CURDATE(), CURDATE(), DATE_ADD(CURDATE(), INTERVAL 17 DAY), 0)";
+    executeQuery(insertQuery, function(error, results, fields){
+        if(error) {
+            res.status(500);
+            res.send(error);  
+        }
+        res.status(200);
+        res.send(results);
+    });
 });
 
 router.post('/extension', function(req, res, next) {
@@ -144,6 +169,12 @@ router.get('/trackLocation', function(req, res, next) {
 
 //checkout
 router.post('/checkout', function(req, res, next) {
+    var updateQuery = "UPDATE BookCopy SET isOnHold =  0, isCheckedOut = 1" +
+                "WHERE isbn = {isbn} AND copyNumber = {copyNumber} ";
+    updateQuery = format(updateQuery, {
+        isbn: req.query.isbn,
+        copyNumber: req.query.copyNumber
+    });
 
 });
 
