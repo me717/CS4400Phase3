@@ -217,18 +217,89 @@ router.get('/trackLocation', function(req, res, next) {
 
 //checkout
 router.post('/checkout', function(req, res, next) {
+    var query = "SELECT isbn, copyNumber FROM Issues WHERE issueId = {issueId} AND DATEDIFF(CURDATE(), returnDate) < 0";
+    query = format(query, {
+        issueId: req.query.issueId
+    });
+    var isbn;
+    var copyNumber;
+    executeQuery(query, function(error, results, fields){
+        if(error) {
+            res.status(500);
+            res.send(error);  
+        } else if (results.length) {
+            isbn = results[0].isbn;
+            copyNumber = copyNumber[0].copyNumber;
+        } else {
+            res.status(200);
+            res.send({message: "Hold has expired"});
+        }
+    });
     var updateQuery = "UPDATE BookCopy SET isOnHold =  0, isCheckedOut = 1" +
                 "WHERE isbn = {isbn} AND copyNumber = {copyNumber} ";
     updateQuery = format(updateQuery, {
-        isbn: req.query.isbn,
-        copyNumber: req.query.copyNumber
+        isbn: isbn,
+        copyNumber: copyNumber
     });
-
+    executeQuery(updateQuery, function(error, results, fields){
+        if(error) {
+            res.status(500);
+            res.send(error);  
+        }
+        res.status(200);
+        res.send(results);
+    });
 });
 
 //return
 router.post('/return', function(req, res, next) {
+    var issuesQuery = "SELECT Issues.username AS username, " +
+                        "Issues.returnDate AS returnDate " +
+                    "FROM Issues WHERE Issues.isbn = '{isbn}' " +
+                     "AND Issues.copyNumber = '{copyNumber}' " +
+                    "ORDER BY returnDate DESC " +
+                    "LIMIT 1";
+    issuesQuery = format(issuesQuery, {
+        isbn: req.query.isbn,
+        copyNumber: req.query.copyNumber
+    });
+    var username;
+    var returnDate;
+    executeQuery(issuesQuery, function(error, results, fields){
+        if(error) {
+            res.status(500);
+            res.send(error);  
+        }
+        username = results[0].username;
+        returnDate = results[0].returnDate;
+    });
 
+    var penaltyQuery = "UPDATE StudentAndFaculty " +
+                        "SET penalty = penalty + DATEDIFF(CURDATE(), $returnDate) * 0.5 "
+                        "WHERE username = '{username}' " +
+                        "AND DATEDIFF(CURDATE(), {returnDate}) > 0";
+    penaltyQuery = format(penaltyQuery, {
+        username: username,
+        returnDate: returnDate
+    });
+    executeQuery(penaltyQuery, function(error, results, fields){
+        if(error) {
+            res.status(500);
+            res.send(error);  
+        }
+    });
+
+    var returnQuery = "UPDATE BookCopy SET isDamaged = {isDamaged}, isCheckedOut = 0 " +
+                        "WHERE BookCopy.copyNumber = {copyNumber} " +
+                        "AND BookCopy.isbn = '{isbn}'";
+    executeQuery(returnQuery, function(error, results, fields){
+        if(error) {
+            res.status(500);
+            res.send(error);  
+        }
+        res.status(200);
+        res.send(results);
+    });
 });
 
 //penalty
