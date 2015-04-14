@@ -76,16 +76,14 @@ router.post('/profile', function(req, res, next){
 
 //Search Books
 router.get('/searchBooks', function(req, res, next) {
-    var query = "SELECT Book.isbn AS isbn, Book.title AS title, Book.publisher AS publisher, " +
-                "Book.edition AS edition, BookCopy.copyNumber AS copyNumber, " + 
+    var query = "SELECT Book.isbn AS isbn, Book.title AS title, " + 
+                "BookCopy.copyNumber AS copyNumber, " + 
                 "Authors.name AS author, COUNT(*) AS numberAvailable " +
                 "FROM Book JOIN Authors ON Book.isbn = Authors.isbn " +
                 "JOIN BookCopy ON Book.isbn = BookCopy.isbn " +
                 "WHERE (Authors.name = '{author}' OR {author} IS NULL) " +
                 "(Book.title = '{title}' OR {title} IS NULL) " +
                 "(Book.isbn = '{isbn}' OR {isbn} IS NULL) " + 
-                "(Book.edition = '{edition}' OR {edition} IS NULL) " +
-                "(Book.title = '{publisher}' OR {publisher} IS NULL) " +
                 "AND (BookCopy.isCheckedOut = 0) " +
                 "AND (BookCopy.isOnHold = 0) " +
                 "AND (BookCopy.isDamaged = 0) " +
@@ -94,8 +92,7 @@ router.get('/searchBooks', function(req, res, next) {
         isbn: req.query.isbn,
         edition: req.query.edition,
         author: req.query.author,
-        title: req.query.title,
-        publisher: req.query.publisher
+        title: req.query.title
     });
     executeQuery(query, function(error, results, fields){
         if(error) {
@@ -108,9 +105,10 @@ router.get('/searchBooks', function(req, res, next) {
 });
 
 router.post('/placeHold', function(req, res, next) {
-    var updateQuery = "UPDATE BookCopy SET isOnHold = 1 " +
+    var updateQuery = "UPDATE BookCopy SET isOnHold = 1, futureRequester = NULL " +
                 "WHERE isbn = {isbn} AND copyNumber = {copyNumber} " +
-                "AND isOnHold = 0 AND isCheckedOut = 0 AND isDamaged = 0";
+                "AND isOnHold = 0 AND isCheckedOut = 0 " + 
+                "AND isDamaged = 0";
     updateQuery = format(updateQuery, {
         isbn: req.query.isbn,
         copyNumber: req.query.copyNumber
@@ -147,9 +145,51 @@ router.post('/extension', function(req, res, next) {
 
 });
 
-//Future Hold Request
-router.post('/futureHold', function(req, res, next) {
+//Future Request Search Book
+router.get('/futureRequestSearch', function(req, res, next) {
+    var query = "SELECT BookCopy.copyNumber AS copyNumber, " +
+                "Issues.ReturnDate AS availableDate " +
+                "FROM BookCopy LEFT JOIN Issues ON " +
+                "BookCopy.isbn = Issues.isbn AND " + 
+                "BookCopy.copyNumber = Issues.copyNumber)" +
+                "WHERE BookCopy.isbn = '{isbn}' " +
+                "AND BookCopy.futureRequester IS NULL "
+                "AND (DATEDIFF(CURDATE(), Issues.ReturnDate) < 0 " +
+                    "OR Issues.ReturnDate IS NULL) " +
+                "AND BookCopy.isOnHold = 0 " +
+                "ORDER BY availableDate DESC " +
+                "LIMIT 1";
+    query = format(query, {
+        isbn: req.query.isbn
+    });
+    executeQuery(insertQuery, function(error, results, fields){
+        if(error) {
+            res.status(500);
+            res.send(error);  
+        }
+        res.status(200);
+        res.send(results);
+    });
+});
 
+//Future Request Place
+router.get('futureRequestPlace', function(req, res, next) {
+    var query = "UPDATE BookCopy SET futureRequester = '{username}' " +
+                "WHERE BookCopy.isbn = '{isbn}' " + 
+                "AND BookCopy.copyNumber = {copyNumber}";
+    query = format(query, {
+        username: req.session.username,
+        isbn: req.query.isbn,
+        copyNumber: req.query.copyNumber
+    });
+    executeQuery(query, function(error, results, fields){
+        if(error) {
+            res.status(500);
+            res.send(error);  
+        }
+        res.status(200);
+        res.send(results);
+    });
 });
 
 
