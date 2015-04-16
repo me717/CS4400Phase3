@@ -141,8 +141,37 @@ router.post('/placeHold', function(req, res, next) {
     });
 });
 
-router.post('/extension', function(req, res, next) {
+router.get('/extensionInfo', function(req, res, next) {
+   var issuesQuery = "SELECT dateOfIssue, extensionDate, returnDate, " +
+                    "CURDATE() AS newExtensionDate, " +
+                    "DATE_ADD(CURDATE(), CURDATE(), INTERVAL 17 DAY) AS newReturnDate " +
+                    "FROM ISSUES WHERE issueId = {issueId}";
+    issuesQuery = format(issuesQuery, {
+        issueId: req.query.issueId
+    });
+    executeQuery(insertQuery, function(error, results, fields){
+        if(error) {
+            res.status(500);
+            res.send(error);  
+        }
+        res.status(200);
+        res.send(results);
+    });
+}
 
+router.post('/extension', function(req, res, next) {
+    var updateQuery = "UPDATE Issues JOIN BookCopy ON Issues.isbn = BookCopy.isbn " +
+                        "SET Issues.countOfExtensions = countOfExtensions + 1, " +
+                        "extensionDate = CURDATE(), returnDate = {returnDate}" +
+                        "WHERE Issues.issueId = {issueId} AND BookCopy.futureRequester = NULL";
+    executeQuery(updateQuery, function(error, results, fields){
+        if(error) {
+            res.status(500);
+            res.send(error);  
+        }
+        res.status(200);
+        res.send(results);
+    });
 });
 
 //Future Request Search Book
@@ -304,27 +333,164 @@ router.post('/return', function(req, res, next) {
 
 //penalty
 router.post('/penalty', function(req, res, next) {
+    var userQuery = "SELECT username FROM Issues "
+                    "WHERE isbn = '{isbn}' " +
+                    "AND copyNumber = '{copyNumber}' " +
+                    "ORDER BY dateOfIssue DESC " +
+                    "LIMIT 1";
+    userQuery = format(userQuery, {
+        isbn: req.query.isbn,
+        copyNumber: req.query.copyNumber
+    });
+    var username;
+    executeQuery(userQuery, function(error, results, fields) {
+        if(error) {
+            res.status(500);
+            res.send(error);
+        }
+        username = res[0].username;
+    });
+    var changePenaltyQuery = "UPDATE StudentAndFaculty " +
+                            "SET penalty = penalty + {penalty} " +
+                            "WHERE username = '{username}'";
+    changePenaltyQuery = format(changePenaltyQuery, {
+        penalty: req.query.penalty,
+        username: username
+    });
+        executeQuery(changePenaltyQuery, function(error, results, fields){
+        if(error) {
+            res.status(500);
+            res.send(error);  
+        }
+    });
 
+    var debarredQuery = "UPDATE StudentAndFaculty " +
+                        "SET isDebarred = 1 " +
+                        "WHERE penalty > 100";
+    executeQuery(debarredQuery, function(error, results, fields){
+        if(error) {
+            res.status(500);
+            res.send(error);  
+        }
+        res.status(200);
+        res.send(results);
+    });
 });
 
 //Damaged Books Report
 router.get('/damagedBooksReport', function(req, res, next) {
-
+    var query = "SELECT MONTH(Issues.returnDate) as month, " + 
+                "Book.subjectName AS subject, COUNT(*) AS count " +
+                "FROM Book " +
+                    "JOIN BookCopy " +
+                    "ON (BookCopy.isbn = Book.isbn) " +
+                    "JOIN Issues " +
+                    "ON (Issues.copyNumber = BookCopy.copyNumber) " +
+                "WHERE MONTH(Issues.returnDate) = {month} " +
+                    "AND BookCopy.isDamaged = 1 " +
+                    "AND (Book.subjectName = {subject1} " +
+                    "OR Book.subjectName = {subject2} " +
+                    "OR Book.subjectName = {subject3}) " +
+                "GROUP BY (subject)";
+    query = format(query, {
+        subject1: req.query.subject1,
+        subject2: req.query.subject2,
+        subject3: req.query.subject3
+    });
+    executeQuery(query, function(error, results, fields){
+        if(error) {
+            res.status(500);
+            res.send(error);  
+        }
+        res.status(200);
+        res.send(results);
+    });
 });
 
 //Popular Books Report
 router.get('/popularBooksReport', function(req, res, next) {
-
+    var query = "SELECT 1 AS month, Book.title AS title, COUNT(*) AS count " +
+                "FROM Book " +
+                    "JOIN Issues " +
+                    "ON Book.isbn = Issues.isbn " +
+                "WHERE MONTH(Issues.dateOfIssue) = 1 " +
+                "GROUP BY Book.title " +
+                "ORDER BY COUNT(*) DESC " +
+                "LIMIT 3 " +
+                "UNION ALL " + 
+                "SELECT 2 AS month, Book.title AS title, COUNT(*) AS count " +
+                "FROM Book " +
+                    "JOIN Issues " +
+                    "ON Book.isbn = Issues.isbn " +
+                "WHERE MONTH(Issues.dateOfIssue)  = 2 " +
+                "GROUP BY Book.title " +
+                "ORDER BY COUNT(*) DESC " +
+                "LIMIT 3";
+    executeQuery(query, function(error, results, fields){
+        if(error) {
+            res.status(500);
+            res.send(error);  
+        }
+        res.status(200);
+        res.send(results);
+    });
 });
 
 //Frequent User Report
 router.get('/frequentUserReport', function(req, res, next) {
-
+    var query = "SELECT 1 AS month, StudentAndFaculty.firstname, " +
+                    "StudentAndFaculty.lastname, COUNT(*) as count " +
+                    "FROM StudentAndFaculty JOIN Issues " + 
+                        "ON StudentAndFaculty.username = Issues.username " +
+                    "WHERE MONTH(Issues.dateOfIssue)  = 1 " +
+                    "GROUP BY StudentAndFaculty.username " +
+                    "HAVING COUNT(*) >= 10 " +
+                    "ORDER BY COUNT(*) DESC " +
+                    "LIMIT 5 " +
+                    "UNION ALL " +
+                    "SELECT 2 AS month, StudentAndFaculty.firstname, " +
+                    "StudentAndFaculty.lastname, COUNT(*) as count " +
+                    "FROM StudentAndFaculty JOIN Issues " + 
+                        "ON StudentAndFaculty.username = Issues.username " +
+                    "WHERE MONTH(Issues.dateOfIssue)  = 2 " +
+                    "GROUP BY StudentAndFaculty.username " +
+                    "HAVING COUNT(*) >= 10 " +
+                    "ORDER BY COUNT(*) DESC " +
+                    "LIMIT 5";
+    executeQuery(query, function(error, results, fields){
+        if(error) {
+            res.status(500);
+            res.send(error);  
+        }
+        res.status(200);
+        res.send(results);
+    });
 });
 
 //Popular Subject Report
 router.get('/popularSubjectReport', function(req, res, next) {
-
+    var query = "SELECT 1 AS month, Book.subjectName AS subject, COUNT(*) AS count " +
+                "FROM Issues " + 
+                    "JOIN Book " +
+                    "ON Issues.isbn = Book.isbn " +
+                "WHERE MONTH(Issues.dateOfIssue) = 1 " +
+                "GROUP BY subject " +
+                "ORDER BY count DESC " +
+                "SELECT 2 AS month, Book.subjectName AS subject, COUNT(*) AS count " +
+                "FROM Issues " + 
+                    "JOIN Book " +
+                    "ON Issues.isbn = Book.isbn " +
+                "WHERE MONTH(Issues.dateOfIssue) = 2 " +
+                "GROUP BY subject " +
+                "ORDER BY count DESC";
+    executeQuery(query, function(error, results, fields){
+        if(error) {
+            res.status(500);
+            res.send(error);  
+        }
+        res.status(200);
+        res.send(results);
+    });
 });
 
 //HELPER FUNCTION
