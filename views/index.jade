@@ -1,11 +1,9 @@
 extends layout
 
 block content
-  .ui.page.grid
-    .row
+  .ui.page.centered.grid
         .eight.wide.column
             h1(class="ui header") Library Database System
-        .eight.wide.column
             form(class="ui form" action="javascript:alert( 'success!' );")
                 .two.fields
                     field
@@ -15,3 +13,5 @@ block content
                         label Password
                         input(type="text" id="login-password" placeholder="Password")
                     a(class="ui submit button" id="login-btn") Login
+                    | or 
+                    a(id="registration-btn") Create an Account
