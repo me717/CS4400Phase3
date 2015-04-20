@@ -86,7 +86,7 @@ router.get('/searchBooks', function(req, res, next) {
                 "JOIN BookCopy ON Book.isbn = BookCopy.isbn " +
                 "WHERE (Authors.name = '{author}' OR '{author}' = '') " +
                 "AND (Book.title = '{title}' OR '{title}' = '') " +
-                "AND (Book.isbn = '{isbn}' OR '{isbn}' IS NULL) " + 
+                "AND (Book.isbn = '{isbn}' OR '{isbn}' = '') " + 
                 "AND (BookCopy.isCheckedOut = 0) " +
                 "AND (BookCopy.isOnHold = 0) " +
                 "AND (BookCopy.isDamaged = 0) " +
