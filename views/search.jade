@@ -2,7 +2,7 @@ extends layout
 
 block content
   .ui.page.centered.grid
-    .twelve.wide.column
+    .sixteen.wide.column
         h1(class="ui header" id="search-header") Search Books
         form(class="ui form" id="search-form")
             .ui.error.message
@@ -21,6 +21,9 @@ block content
                 a(class="ui submit button" id="search-btn") Search
 
         #hold-content
+            .ui.negative.message(id="hold-error")
+                .header(id="hold-error-header")
+                p(id="hold-error-body")
             table(class="ui table")
                 thead
                     tr
@@ -32,11 +35,22 @@ block content
                         th # of copies available
                 tbody(id="search-table")
                     tr
-                        td [btn]
-                        td 0-000-00000-0
+                        td(class="field")
+                            .ui.radio.checkbox
+                                input(type="radio" name="search-select")
+                        td(class="search-isbn") 0-000-00000-0
+                        td Test Data asdfasdfasdf
+                        td Stephen Song
+                        td 14
+                        td 124124
+                    tr
+                        td(class="field")
+                            .ui.radio.checkbox
+                                input(type="radio" name="search-select")
+                        td(class="search-isbn") 3-444-12355-1
                         td Test Data for Dummies
                         td Bill Leahy
                         td 14
                         td N/A
             a(class="ui submit button" id="hold-back") Back
-            a(class="ui submit button" id="hold-submit") Submit
+            a(class="ui submit disabled button" id="hold-submit") Submit

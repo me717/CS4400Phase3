@@ -154,6 +154,51 @@ $(document).ready(function(){
 		$('#search-header').text("Search Books");
 		$('#search-form').show();
 		$('#hold-content').hide();
-	}
+	});
+
+	$('#search-table .checkbox').click(function() {
+		$('#hold-submit').removeClass("disabled");
+	});
+
+	$("#hold-error").hide();
+	$('#hold-submit').click(function() {
+		var hold_isbn = $('input[name="search-select"]:checked', '#search-table').parent().parent().parent().find('.search-isbn').text();
+		var hold_copyNumber;
+
+		$.ajax({
+			url: "db/getCopyNumber",
+			data: {
+				isbn: hold_isbn
+			},
+			 success: function(result){
+				hold_copyNumber = result[0];
+				alert("copy number: " + hold_copyNumber);
+				$.ajax({
+					url: "db/placeHold",
+					data: {
+						isbn: hold_isbn,
+						copyNumber: hold_copyNumber,
+						username: req.session.username
+					},
+					method: "POST",
+					 success: function(result){
+					 	$("#hold-error").hide();
+						alert(result);
+						console.log(result);
+					},
+					error: function(xhr, status, error) {
+						$("#hold-error").show();
+						$("#hold-error-header").text("Error");
+						$("#hold-error-body").text("Unable to place hold.");
+					}
+				});
+			},
+			error: function(xhr, status, error) {
+				$("#hold-error").show();
+				$("#hold-error-header").text("Error");
+				$("#hold-error-body").text("Unable to find copy number");
+			}
+		});
+	});
 
 });
