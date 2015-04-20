@@ -156,11 +156,7 @@ $(document).ready(function(){
 		$('#search-form').show();
 		$('#hold-content').hide();
 	});
-
-	$('#search-table .checkbox').click(function() {
-		$('#hold-submit').removeClass("disabled");
-	});
-
+	
 	$("#hold-error").hide();
 	$('#hold-submit').click(function() {
 		var hold_isbn = $('input[name="search-select"]:checked', '#search-table').parent().parent().parent().find('.search-isbn').text();
