@@ -514,7 +514,8 @@ router.get('/getCopyNumber', function(req, res, next) {
                 "isbn = {isbn} AND " +
                 "isDamaged = 0 AND " +
                 "isCheckedOut = 0 AND " +
-                "isOnHold = 0";
+                "isOnHold = 0 " +
+                "LIMIT 1";
     query = format(query, {
         isbn: req.query.isbn
     });
