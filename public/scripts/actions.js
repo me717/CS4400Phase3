@@ -11,6 +11,7 @@ $(document).ready(function(){
 			},
 			 success: function(result){
 				username = $('#login-username').val();
+				window.location.href = "search";
 			},
 			error: function(xhr, status, error) {
 				console.log(error.message);
@@ -31,10 +32,6 @@ $(document).ready(function(){
 			$("#registration-form").addClass("error");
 			$("#registration-error-header").text("Incomplete Form");
 			$("#registration-error-body").text("One or more fields have been left blank.");
-		} else if (false) { // see if there's a duplicate user
-			$("#registration-form").addClass("error");
-			$("#registration-error-header").text("Duplicate User");
-			$("#registration-error-body").text("Another user with this username already exists.");
 		} else if (profile_password != profile_confirm_password) {
 			$("#registration-form").addClass("error");
 			$("#registration-error-header").text("Passwords do not match");
@@ -53,8 +50,8 @@ $(document).ready(function(){
 				},
 				error: function(xhr, status, error) {
 					$("#registration-form").addClass("error");
-					$("#registration-error-header").text("Error");
-					$("#registration-error-body").text(error.message);
+					$("#registration-error-header").text("Duplicate User");
+					$("#registration-error-body").text("Another user with this username already exists.");
 				}
 			});
 			
@@ -106,4 +103,69 @@ $(document).ready(function(){
 			}
 		});
 	});
+
+	// search screen
+	$('#search-btn').click(function() {
+		if ($('#search-isbn').val() === '' && $('#search-title').val() === '' && $('#search-author').val() === ''){
+			$("#search-form").addClass("error");
+			$("#search-error-header").text("Error");
+			$("#search-error-body").text("Please enter the ISBN, Title, or Author.");
+		} else {
+			$.ajax({
+				url: "db/searchBooks",
+				data: {
+					isbn: $('#search-isbn').val(),
+					edition: $('#search-edition').val(),
+					author: $('#search-author').val(),
+					title: $('#search-title').val()
+				},
+				 success: function(result){
+					console.log(result);
+					result.forEach(function(item) {
+						$("#search-table").append(
+							"<tr>" +
+							"<td>" + "[btn]" + '</td>' +
+							"<td>" + item.isbn + '</td>' +
+							"<td>" + item.title + '</td>' +
+							"<td>" + item.author + '</td>' +
+							"<td>" + item.edition + '</td>' +
+							"<td>" + "123" + '</td>' +
+							"</tr>"
+						);
+					});
+				},
+				error: function(xhr, status, error) {
+					console.log(error.message);
+					$("#search-form").addClass("Error");
+					$("#search-error-header").text(error.status);
+					$("#search-error-body").text(error.message);
+				}
+			});
+		}
+
+		/*var sample = [
+		{
+			isbn: '0-123-12345-1',
+			edition: 4,
+			author: 'Stephen Song',
+			title: 'Databases for Dummies'
+
+		},
+		{
+			isbn: '0-123-12345-1',
+			edition: 5,
+			author: 'Albert Morlan',
+			title: 'Databases for Dummies'
+
+		},
+		{
+			isbn: '0-123-12345-1',
+			edition: 6,
+			author: 'James Park',
+			title: 'Databases for Dummies'
+
+		}
+		];*/
+	});
+
 });

@@ -3,4 +3,37 @@ extends layout
 block content
   .ui.page.centered.grid
     .twelve.wide.column
-      p asdkfjasdklfj
+        h1(class="ui header") Search Books
+        form(class="ui form" id="search-form")
+            .ui.error.message
+                .header(id="search-error-header")
+                p(id="search-error-body")
+            .field
+                label ISBN
+                input(type="text" id="search-isbn" placeholder="ISBN")
+            .field
+                label Title
+                input(type="text" id="search-title" placeholder="Title")
+            .field
+                label Author
+                input(type="text" id="search-author" placeholder="Author")
+            .field
+                a(class="ui submit button" id="search-btn") Search
+
+        table(class="ui table")
+            thead
+                tr
+                    th Select
+                    th ISBN
+                    th Title of the Book
+                    th Author
+                    th Edition
+                    th # of copies available
+            tbody(id="search-table")
+                tr
+                    td [btn]
+                    td 0-000-00000-0
+                    td Test Data for Dummies
+                    td Bill Leahy
+                    td 14
+                    td N/A
