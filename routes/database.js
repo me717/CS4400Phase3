@@ -314,36 +314,36 @@ router.post('/return', function(req, res, next) {
         if(error) {
             res.status(500);
             res.send(error);  
+        } else {
+            username = results[0].username;
+            returnDate = results[0].returnDate;
+            var penaltyQuery = "UPDATE StudentAndFaculty " +
+                            "SET penalty = penalty + DATEDIFF(CURDATE(), $returnDate) * 0.5 "
+                            "WHERE username = '{username}' " +
+                            "AND DATEDIFF(CURDATE(), {returnDate}) > 0";
+            penaltyQuery = format(penaltyQuery, {
+                username: username,
+                returnDate: returnDate
+            });
+            executeQuery(penaltyQuery, function(error, results, fields){
+                if(error) {
+                    res.status(500);
+                    res.send(error);  
+                } else {
+                    var returnQuery = "UPDATE BookCopy SET isDamaged = {isDamaged}, isCheckedOut = 0 " +
+                                        "WHERE BookCopy.copyNumber = {copyNumber} " +
+                                        "AND BookCopy.isbn = '{isbn}'";
+                    executeQuery(returnQuery, function(error, results, fields){
+                        if(error) {
+                            res.status(500);
+                            res.send(error);  
+                        }
+                        res.status(200);
+                        res.send(results);
+                    });
+                }
+            });
         }
-        username = results[0].username;
-        returnDate = results[0].returnDate;
-    });
-
-    var penaltyQuery = "UPDATE StudentAndFaculty " +
-                        "SET penalty = penalty + DATEDIFF(CURDATE(), $returnDate) * 0.5 "
-                        "WHERE username = '{username}' " +
-                        "AND DATEDIFF(CURDATE(), {returnDate}) > 0";
-    penaltyQuery = format(penaltyQuery, {
-        username: username,
-        returnDate: returnDate
-    });
-    executeQuery(penaltyQuery, function(error, results, fields){
-        if(error) {
-            res.status(500);
-            res.send(error);  
-        }
-    });
-
-    var returnQuery = "UPDATE BookCopy SET isDamaged = {isDamaged}, isCheckedOut = 0 " +
-                        "WHERE BookCopy.copyNumber = {copyNumber} " +
-                        "AND BookCopy.isbn = '{isbn}'";
-    executeQuery(returnQuery, function(error, results, fields){
-        if(error) {
-            res.status(500);
-            res.send(error);  
-        }
-        res.status(200);
-        res.send(results);
     });
 });
 
@@ -509,6 +509,24 @@ router.get('/popularSubjectReport', function(req, res, next) {
     });
 });
 
+router.get('/getCopyNumber', function(req, res, next) {
+    var query = "SELECT copyNumber FROM BookCopy WHERE " +
+                "isbn = {isbn} AND " +
+                "isDamaged = 0 AND " +
+                "isCheckedOut = 0 AND " +
+                "isOnHold = 0";
+    query = format(query, {
+        isbn: req.query.isbn
+    });
+    executeQuery(query, function(error, results, fields){
+        if(error) {
+            res.status(500);
+            res.send(error);  
+        }
+        res.status(200);
+        res.send(results);
+    });
+});
 //HELPER FUNCTION
 function executeQuery(query, callback) {
     var connection = mysql.createConnection(credentials);
