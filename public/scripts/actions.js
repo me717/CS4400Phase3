@@ -130,7 +130,7 @@ $(document).ready(function(){
 					result.forEach(function(item) {
 						$("#search-table").append(
 							"<tr>" +
-							"<td>" + "[btn]" + '</td>' +
+							"<td class="field"><div class="ui radio checkbox"><input type="radio" name="search-select"></div></td>" +
 							"<td>" + item.isbn + '</td>' +
 							"<td>" + item.title + '</td>' +
 							"<td>" + item.author + '</td>' +
