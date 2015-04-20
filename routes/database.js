@@ -511,7 +511,7 @@ router.get('/popularSubjectReport', function(req, res, next) {
 
 router.get('/getCopyNumber', function(req, res, next) {
     var query = "SELECT copyNumber FROM BookCopy WHERE " +
-                "isbn = {isbn} AND " +
+                "isbn = '{isbn}'' AND " +
                 "isDamaged = 0 AND " +
                 "isCheckedOut = 0 AND " +
                 "isOnHold = 0 " +
