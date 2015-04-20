@@ -131,7 +131,7 @@ $(document).ready(function(){
 						$("#search-table").append(
 							"<tr>" +
 							"<td class='field'><div class='ui radio checkbox'><input type='radio' name='search-select'></div></td>" +
-							"<td>" + item.isbn + '</td>' +
+							"<td class='search-isbn'>" + item.isbn + '</td>' +
 							"<td>" + item.title + '</td>' +
 							"<td>" + item.author + '</td>' +
 							"<td>" + item.edition + '</td>' +
@@ -139,6 +139,7 @@ $(document).ready(function(){
 							"</tr>"
 						);
 					});
+					$('.ui.checkbox').checkbox();
 				},
 				error: function(xhr, status, error) {
 					console.log(error.message);
