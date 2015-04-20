@@ -18,6 +18,7 @@ router.get('/login', function(req, res, next) {
             res.send(error);  
         }
         req.session.username = results[0].username;
+        console.log(req.session.username);
         res.status(200);
         res.send(results);
 
@@ -29,11 +30,12 @@ router.post('/register', function(req, res, next) {
     var query = "INSERT INTO User(username, password)"
     query = query + "VALUES ('{username}', '{password}')";
     query = format(query, {
-        username: req.query.username,
-        password: req.query.password
+        username: req.body.username,
+        password: req.body.password
     });
     executeQuery(query, function(error, results, fields) {
         if(!error) {
+            req.session.username = req.body.username;
             res.status(200);
             res.send(results);
         } else {
@@ -48,19 +50,19 @@ router.post('/profile', function(req, res, next){
     var query = "INSERT INTO StudentAndFaculty" +
                     "(username, firstName, lastName, dob, gender, email, " +
                     "address, isFaculty, dept) VALUES " +
-                    "({username}, {firstName}, {lastName}, {dob}, {gender}, {email}, " +
-                    "{address}, {isFaculty}, {dept})";
+                    "('{username}', '{firstName}', '{lastName}', '{dob}', '{gender}', '{email}', " +
+                    "'{address}', {isFaculty}, '{dept}')";
     query = format(query, {
         // username: req.query.username,
         username: req.session.username,
-        firstName: req.query.firstName,
-        lastName: req.query.lastName,
-        dob: req.query.dob,
-        gender: req.query.dob,
-        email: req.query.email,
-        address: req.query.address,
-        isFaculty: req.query.isFaculty,
-        dept: req.query.dept
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        dob: req.body.dob,
+        gender: req.body.dob,
+        email: req.body.email,
+        address: req.body.address,
+        isFaculty: req.body.isFaculty,
+        dept: req.body.dept
     });
     executeQuery(query, function(error, results, fields){
         if(!error) {
@@ -69,6 +71,7 @@ router.post('/profile', function(req, res, next){
         } else {
             //TODO error handling
             res.status(500);
+            error.query = query;
             res.send(error);
         }
     })
@@ -81,9 +84,9 @@ router.get('/searchBooks', function(req, res, next) {
                 "Authors.name AS author, COUNT(*) AS numberAvailable " +
                 "FROM Book JOIN Authors ON Book.isbn = Authors.isbn " +
                 "JOIN BookCopy ON Book.isbn = BookCopy.isbn " +
-                "WHERE (Authors.name = '{author}' OR {author} IS NULL) " +
-                "(Book.title = '{title}' OR {title} IS NULL) " +
-                "(Book.isbn = '{isbn}' OR {isbn} IS NULL) " + 
+                "WHERE (Authors.name = '{author}' OR '{author}' = '') " +
+                "AND (Book.title = '{title}' OR '{title}' = '') " +
+                "AND (Book.isbn = '{isbn}' OR '{isbn}' IS NULL) " + 
                 "AND (BookCopy.isCheckedOut = 0) " +
                 "AND (BookCopy.isOnHold = 0) " +
                 "AND (BookCopy.isDamaged = 0) " +
@@ -106,7 +109,7 @@ router.get('/searchBooks', function(req, res, next) {
 
 router.post('/placeHold', function(req, res, next) {
     var updateQuery = "UPDATE BookCopy SET isOnHold = 1, futureRequester = NULL " +
-                "WHERE isbn = {isbn} AND copyNumber = {copyNumber} " +
+                "WHERE isbn = '{isbn}' AND copyNumber = {copyNumber} " +
                 "AND isOnHold = 0 AND isCheckedOut = 0 " + 
                 "AND isDamaged = 0";
     updateQuery = format(updateQuery, {
@@ -115,29 +118,33 @@ router.post('/placeHold', function(req, res, next) {
     });
     executeQuery(updateQuery, function(error, results, fields) {
         if(error) {
+            console.log("DONE")
             res.status(500);
+            error.query = req.query;
             res.send(error);
-        }
-    });
+        }else{
 
-    var insertQuery = "INSERT INTO Issues (username, isbn, copyNumber, " + 
-                        "dateOfIssue, returnDate, extensionDate, countOfExtensions) " +
-                        "SELECT username, '{isbn}', {copyNumber}, " + 
-                        "CURDATE(), DATE_ADD(CURDATE(), CURDATE(), INTERVAL 17 DAY), 0 " +
-                        "FROM StudentAndFaculty WHERE username = '{username}' AND isDebarred = 0";
-    insertQuery = format(insertQuery, {
-        isbn: req.query.isbn,
-        copyNumber: req.query.copyNumber,
-        username: req.session.username
-        // username: req.query.username
-    });
-    executeQuery(insertQuery, function(error, results, fields){
-        if(error) {
-            res.status(500);
-            res.send(error);  
-        }
-        res.status(200);
-        res.send(results);
+            console.log("WORKED-1");
+            var insertQuery = "INSERT INTO Issues (username, isbn, copyNumber, " + 
+                                "dateOfIssue, returnDate, extensionDate, countOfExtensions) " +
+                                "SELECT username, '{isbn}', {copyNumber}, " + 
+                                "CURDATE(), DATE_ADD(CURDATE(), CURDATE(), INTERVAL 17 DAY), 0 " +
+                                "FROM StudentAndFaculty WHERE username = '{username}' AND isDebarred = 0";
+            insertQuery = format(insertQuery, {
+                isbn: req.query.isbn,
+                copyNumber: req.query.copyNumber,
+                username: req.session.username
+                // username: req.query.username
+            });
+            executeQuery(insertQuery, function(error, results, fields){
+                if(error) {
+                    res.status(500);
+                    res.send(error);  
+                }
+                res.status(200);
+                res.send(results);
+            });
+       }
     });
 });
 
@@ -503,5 +510,6 @@ function executeQuery(query, callback) {
 		} 
     });
     connection.query(query, callback);
+    connection.end();
 }
 module.exports = router;

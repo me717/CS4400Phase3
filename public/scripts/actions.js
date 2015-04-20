@@ -46,6 +46,7 @@ $(document).ready(function(){
 					username: profile_username,
 					password: profile_password
 				},
+				method: "POST",
 				 success: function(result){
 				 	username = profile_username;
 					window.location.href = "profile";
@@ -93,6 +94,7 @@ $(document).ready(function(){
 			    isFaculty: is_faculty,
 			    dept: dept_name
 			},
+			method: "POST",
 			 success: function(result){
 				window.location.href = "search";
 
