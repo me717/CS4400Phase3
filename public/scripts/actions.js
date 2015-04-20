@@ -93,8 +93,8 @@ $(document).ready(function(){
 			},
 			method: "POST",
 			 success: function(result){
+			 	$('#profile-form').removeClass("error");
 				window.location.href = "search";
-
 			},
 			error: function(xhr, status, error) {
 				$("#profile-form").addClass("error");
@@ -104,7 +104,8 @@ $(document).ready(function(){
 		});
 	});
 
-	// search screen
+	// search/hold screens
+	$('#hold-content').hide();
 	$('#search-btn').click(function() {
 		if ($('#search-isbn').val() === '' && $('#search-title').val() === '' && $('#search-author').val() === ''){
 			$("#search-form").addClass("error");
@@ -120,6 +121,11 @@ $(document).ready(function(){
 					title: $('#search-title').val()
 				},
 				 success: function(result){
+				 	$('#profile-form').removeClass("error");
+				 	$('#search-header').text("Hold Request For Book");
+				 	$('#search-form').hide();
+				 	$('#hold-content').show();
+
 					console.log(result);
 					result.forEach(function(item) {
 						$("#search-table").append(
@@ -129,7 +135,7 @@ $(document).ready(function(){
 							"<td>" + item.title + '</td>' +
 							"<td>" + item.author + '</td>' +
 							"<td>" + item.edition + '</td>' +
-							"<td>" + "123" + '</td>' +
+							"<td>" + item.numberAvailable + '</td>' +
 							"</tr>"
 						);
 					});
@@ -142,30 +148,12 @@ $(document).ready(function(){
 				}
 			});
 		}
-
-		/*var sample = [
-		{
-			isbn: '0-123-12345-1',
-			edition: 4,
-			author: 'Stephen Song',
-			title: 'Databases for Dummies'
-
-		},
-		{
-			isbn: '0-123-12345-1',
-			edition: 5,
-			author: 'Albert Morlan',
-			title: 'Databases for Dummies'
-
-		},
-		{
-			isbn: '0-123-12345-1',
-			edition: 6,
-			author: 'James Park',
-			title: 'Databases for Dummies'
-
-		}
-		];*/
 	});
+
+	$('#hold-back').click(function() {
+		$('#search-header').text("Search Books");
+		$('#search-form').show();
+		$('#hold-content').hide();
+	}
 
 });

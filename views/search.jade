@@ -3,7 +3,7 @@ extends layout
 block content
   .ui.page.centered.grid
     .twelve.wide.column
-        h1(class="ui header") Search Books
+        h1(class="ui header" id="search-header") Search Books
         form(class="ui form" id="search-form")
             .ui.error.message
                 .header(id="search-error-header")
@@ -20,20 +20,23 @@ block content
             .field
                 a(class="ui submit button" id="search-btn") Search
 
-        table(class="ui table")
-            thead
-                tr
-                    th Select
-                    th ISBN
-                    th Title of the Book
-                    th Author
-                    th Edition
-                    th # of copies available
-            tbody(id="search-table")
-                tr
-                    td [btn]
-                    td 0-000-00000-0
-                    td Test Data for Dummies
-                    td Bill Leahy
-                    td 14
-                    td N/A
+        #hold-content
+            table(class="ui table")
+                thead
+                    tr
+                        th Select
+                        th ISBN
+                        th Title of the Book
+                        th Author
+                        th Edition
+                        th # of copies available
+                tbody(id="search-table")
+                    tr
+                        td [btn]
+                        td 0-000-00000-0
+                        td Test Data for Dummies
+                        td Bill Leahy
+                        td 14
+                        td N/A
+            a(class="ui submit button" id="hold-back") Back
+            a(class="ui submit button" id="hold-submit") Submit
