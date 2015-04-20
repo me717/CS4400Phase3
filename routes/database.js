@@ -425,23 +425,22 @@ router.get('/damagedBooksReport', function(req, res, next) {
 
 //Popular Books Report
 router.get('/popularBooksReport', function(req, res, next) {
-    var query = "SELECT 1 AS month, Book.title AS title, COUNT(*) AS count " +
+    var query = "(SELECT 1 AS month, Book.title AS title, COUNT(*) AS count " +
                 "FROM Book " +
                     "JOIN Issues " +
                     "ON Book.isbn = Issues.isbn " +
                 "WHERE MONTH(Issues.dateOfIssue) = 1 " +
-                "GROUP BY Book.title " +
-                "ORDER BY COUNT(*) DESC " +
-                "LIMIT 3 " +
+                "GROUP BY Book.isbn " +
+                "LIMIT 3) " +
                 "UNION ALL " + 
-                "SELECT 2 AS month, Book.title AS title, COUNT(*) AS count " +
+                "(SELECT 2 AS month, Book.title AS title, COUNT(*) AS count " +
                 "FROM Book " +
                     "JOIN Issues " +
                     "ON Book.isbn = Issues.isbn " +
                 "WHERE MONTH(Issues.dateOfIssue)  = 2 " +
-                "GROUP BY Book.title " +
-                "ORDER BY COUNT(*) DESC " +
-                "LIMIT 3";
+                "GROUP BY Book.isbn " +
+                "LIMIT 3) " +
+                "ORDER BY MONTH ASC, COUNT(*) DESC";
     executeQuery(query, function(error, results, fields){
         if(error) {
             res.status(500);
@@ -454,25 +453,24 @@ router.get('/popularBooksReport', function(req, res, next) {
 
 //Frequent User Report
 router.get('/frequentUserReport', function(req, res, next) {
-    var query = "SELECT 1 AS month, StudentAndFaculty.firstname, " +
+    var query = "(SELECT 1 AS month, StudentAndFaculty.firstname, " +
                     "StudentAndFaculty.lastname, COUNT(*) as count " +
                     "FROM StudentAndFaculty JOIN Issues " + 
                         "ON StudentAndFaculty.username = Issues.username " +
                     "WHERE MONTH(Issues.dateOfIssue)  = 1 " +
                     "GROUP BY StudentAndFaculty.username " +
                     "HAVING COUNT(*) >= 10 " +
-                    "ORDER BY COUNT(*) DESC " +
-                    "LIMIT 5 " +
+                    "LIMIT 5) " +
                     "UNION ALL " +
-                    "SELECT 2 AS month, StudentAndFaculty.firstname, " +
+                    "(SELECT 2 AS month, StudentAndFaculty.firstname, " +
                     "StudentAndFaculty.lastname, COUNT(*) as count " +
                     "FROM StudentAndFaculty JOIN Issues " + 
                         "ON StudentAndFaculty.username = Issues.username " +
                     "WHERE MONTH(Issues.dateOfIssue)  = 2 " +
                     "GROUP BY StudentAndFaculty.username " +
                     "HAVING COUNT(*) >= 10 " +
-                    "ORDER BY COUNT(*) DESC " +
-                    "LIMIT 5";
+                    "LIMIT 5) " +
+                    "ORDER BY MONTH ASC, COUNT(*) DESC";
     executeQuery(query, function(error, results, fields){
         if(error) {
             res.status(500);
@@ -485,20 +483,21 @@ router.get('/frequentUserReport', function(req, res, next) {
 
 //Popular Subject Report
 router.get('/popularSubjectReport', function(req, res, next) {
-    var query = "SELECT 1 AS month, Book.subjectName AS subject, COUNT(*) AS count " +
+    var query = "(SELECT 1 AS month, Book.subjectName AS subject, COUNT(*) AS count " +
                 "FROM Issues " + 
                     "JOIN Book " +
                     "ON Issues.isbn = Book.isbn " +
                 "WHERE MONTH(Issues.dateOfIssue) = 1 " +
-                "GROUP BY subject " +
-                "ORDER BY count DESC " +
-                "SELECT 2 AS month, Book.subjectName AS subject, COUNT(*) AS count " +
+                "GROUP BY subject) " +
+                // "ORDER BY count DESC " +
+                "UNION ALL "
+                "(SELECT 2 AS month, Book.subjectName AS subject, COUNT(*) AS count " +
                 "FROM Issues " + 
                     "JOIN Book " +
                     "ON Issues.isbn = Book.isbn " +
-                "WHERE MONTH(Issues.dateOfIssue) = 2 " +
-                "GROUP BY subject " +
-                "ORDER BY count DESC";
+                "WHERE MONTH(Issues.dateOfIssue) = 2) " +
+                // "GROUP BY subject " +
+                "ORDER BY month ASC, count DESC";
     executeQuery(query, function(error, results, fields){
         if(error) {
             res.status(500);
@@ -511,7 +510,7 @@ router.get('/popularSubjectReport', function(req, res, next) {
 
 router.get('/getCopyNumber', function(req, res, next) {
     var query = "SELECT copyNumber FROM BookCopy WHERE " +
-                "isbn = '{isbn}'' AND " +
+                "isbn = '{isbn}' AND " +
                 "isDamaged = 0 AND " +
                 "isCheckedOut = 0 AND " +
                 "isOnHold = 0 " +
