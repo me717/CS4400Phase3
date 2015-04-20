@@ -86,7 +86,7 @@ router.get('/searchBooks', function(req, res, next) {
                 "JOIN BookCopy ON Book.isbn = BookCopy.isbn " +
                 "WHERE (Authors.name = '{author}' OR '{author}' = '') " +
                 "AND (Book.title = '{title}' OR '{title}' = '') " +
-                "AND (Book.isbn = '{isbn}' OR '{isbn}' IS NULL) " + 
+                "AND (Book.isbn = '{isbn}' OR '{isbn}' = '') " + 
                 "AND (BookCopy.isCheckedOut = 0) " +
                 "AND (BookCopy.isOnHold = 0) " +
                 "AND (BookCopy.isDamaged = 0) " +
@@ -113,14 +113,14 @@ router.post('/placeHold', function(req, res, next) {
                 "AND isOnHold = 0 AND isCheckedOut = 0 " + 
                 "AND isDamaged = 0";
     updateQuery = format(updateQuery, {
-        isbn: req.query.isbn,
-        copyNumber: req.query.copyNumber
+        isbn: req.body.isbn,
+        copyNumber: req.body.copyNumber
     });
     executeQuery(updateQuery, function(error, results, fields) {
         if(error) {
             console.log("DONE")
             res.status(500);
-            error.query = req.query;
+            error.query = query;
             res.send(error);
         }else{
 
@@ -131,8 +131,8 @@ router.post('/placeHold', function(req, res, next) {
                                 "CURDATE(), DATE_ADD(CURDATE(), CURDATE(), INTERVAL 17 DAY), 0 " +
                                 "FROM StudentAndFaculty WHERE username = '{username}' AND isDebarred = 0";
             insertQuery = format(insertQuery, {
-                isbn: req.query.isbn,
-                copyNumber: req.query.copyNumber,
+                isbn: req.body.isbn,
+                copyNumber: req.body.copyNumber,
                 username: req.session.username
                 // username: req.query.username
             });
@@ -143,6 +143,7 @@ router.post('/placeHold', function(req, res, next) {
                 }
                 res.status(200);
                 res.send(results);
+                console.log(insertQuery);
             });
        }
     });
@@ -151,7 +152,7 @@ router.post('/placeHold', function(req, res, next) {
 router.get('/extensionInfo', function(req, res, next) {
    var issuesQuery = "SELECT dateOfIssue, extensionDate, returnDate, " +
                     "CURDATE() AS newExtensionDate, " +
-                    "DATE_ADD(CURDATE(), CURDATE(), INTERVAL 17 DAY) AS newReturnDate " +
+                    "DATE_ADD(CURDATE(), CURDATE(), INTERVAL 14 DAY) AS newReturnDate " +
                     "FROM ISSUES WHERE issueId = {issueId}";
     issuesQuery = format(issuesQuery, {
         issueId: req.query.issueId
@@ -168,9 +169,17 @@ router.get('/extensionInfo', function(req, res, next) {
 
 router.post('/extension', function(req, res, next) {
     var updateQuery = "UPDATE Issues JOIN BookCopy ON Issues.isbn = BookCopy.isbn " +
+                        "JOIN StudentAndFaculty ON Issues.username = StudentAndFaculty.username " +
                         "SET Issues.countOfExtensions = countOfExtensions + 1, " +
-                        "extensionDate = CURDATE(), returnDate = {returnDate}" +
-                        "WHERE Issues.issueId = {issueId} AND BookCopy.futureRequester = NULL";
+                        "extensionDate = CURDATE(), returnDate = 'DATE_ADD(CURDATE(), CURDATE(), INTERVAL 14 DAY)'" +
+                        "WHERE Issues.issueId = {issueId} AND Issues.isbn NOT IN " +
+                        "(SELECT isbn FROM BookCopy WHERE futureRequester NOT NULL) " +
+                        "AND ((StudentAndFaculty.isFaculty = 1 AND Issues.countOfExtensions < 5) " +
+                        "OR (StudentAndFaculty.isFaculty = 0 AND Issues.countOfExtensions < 2))";
+    updateQuery = format(updateQuery, {
+        issueId: req.body.issueId,
+        username: req.session.username
+    });
     executeQuery(updateQuery, function(error, results, fields){
         if(error) {
             res.status(500);
@@ -209,7 +218,7 @@ router.get('/futureRequestSearch', function(req, res, next) {
 });
 
 //Future Request Place
-router.get('futureRequestPlace', function(req, res, next) {
+router.get('/futureRequestPlace', function(req, res, next) {
     var query = "UPDATE BookCopy SET futureRequester = '{username}' " +
                 "WHERE BookCopy.isbn = '{isbn}' " + 
                 "AND BookCopy.copyNumber = {copyNumber}";
@@ -255,7 +264,7 @@ router.get('/trackLocation', function(req, res, next) {
 router.post('/checkout', function(req, res, next) {
     var query = "SELECT isbn, copyNumber FROM Issues WHERE issueId = {issueId} AND DATEDIFF(CURDATE(), returnDate) < 0";
     query = format(query, {
-        issueId: req.query.issueId
+        issueId: req.body.issueId
     });
     var isbn;
     var copyNumber;
@@ -296,8 +305,8 @@ router.post('/return', function(req, res, next) {
                     "ORDER BY returnDate DESC " +
                     "LIMIT 1";
     issuesQuery = format(issuesQuery, {
-        isbn: req.query.isbn,
-        copyNumber: req.query.copyNumber
+        isbn: req.body.isbn,
+        copyNumber: req.body.copyNumber
     });
     var username;
     var returnDate;
@@ -346,8 +355,8 @@ router.post('/penalty', function(req, res, next) {
                     "ORDER BY dateOfIssue DESC " +
                     "LIMIT 1";
     userQuery = format(userQuery, {
-        isbn: req.query.isbn,
-        copyNumber: req.query.copyNumber
+        isbn: req.body.isbn,
+        copyNumber: req.body.copyNumber
     });
     var username;
     executeQuery(userQuery, function(error, results, fields) {
@@ -361,7 +370,7 @@ router.post('/penalty', function(req, res, next) {
                             "SET penalty = penalty + {penalty} " +
                             "WHERE username = '{username}'";
     changePenaltyQuery = format(changePenaltyQuery, {
-        penalty: req.query.penalty,
+        penalty: req.body.penalty,
         username: username
     });
         executeQuery(changePenaltyQuery, function(error, results, fields){
