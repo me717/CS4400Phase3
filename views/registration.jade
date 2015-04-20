@@ -1,0 +1,22 @@
+extends layout
+
+block content
+  .ui.page.centered.grid
+    .row
+        .eight.wide.column
+            h1(class="ui header") New User Registration
+            form(class="ui form" id="registration-form" action="javascript:alert( 'success!' );")
+                .ui.error.message
+                    .header(id="registration-error-header")
+                    p(id="registration-error-body")
+                .two.fields
+                    field
+                        label Username
+                        input(type="text" id="registration-username" placeholder="Username")
+                    field
+                        label Password
+                        input(type="text" id="registration-password" placeholder="Password")
+                    field
+                        label Confirm Password
+                        input(type="text" id="registration-confirm-password" placeholder="Confirm Password")
+                    a(class="ui submit button" id="create-account-btn") Register

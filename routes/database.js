@@ -157,7 +157,7 @@ router.get('/extensionInfo', function(req, res, next) {
         res.status(200);
         res.send(results);
     });
-}
+});
 
 router.post('/extension', function(req, res, next) {
     var updateQuery = "UPDATE Issues JOIN BookCopy ON Issues.isbn = BookCopy.isbn " +

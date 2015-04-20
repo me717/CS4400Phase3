@@ -1,0 +1,48 @@
+extends layout
+
+block content
+  .ui.page.centered.grid
+    .twelve.wide.column
+      form(class="ui form" id="profile-form")
+        .ui.error.message
+            .header(id="profile-error-header")
+            p(id="profile-error-body")
+        h4(class="ui dividing header") Personal Information
+        .two.fields
+            .field
+                label Name
+                .two.fields
+                    .field
+                      input(type="text" id="profile-firstname" placeholder="First Name")
+                    .field
+                      input(type="text" id="profile-lastname" placeholder="Last Name")
+            .field
+                label Gender
+                select(class="ui dropdown" id="profile-gender")
+                    option(value="") Gender
+                    option(value="Male") Male
+                    option(value="Female") Female
+        .fields
+            .six.wide.field
+              label Date of Birth (dd/mm/yyyy)
+              input(type="text" id="profile-dob" placeholder="i.e. 04/27/1995")
+            .ten.wide.field
+              label Email
+              input(type="text" id="profile-email" placeholder="Email Address")
+        .field
+            label Address
+            textarea(type="text" id="profile-address")
+
+        h4(class="ui top attached header") Faculty Information
+        .ui.bottom.attached.segment
+            .grouped.fields
+                .field
+                    .ui.checkbox(id="faculty-check")
+                          input(type="checkbox" id="profile-faculty")
+                          label I am a faculty member
+                        </div>
+                .disabled.field(id="faculty-dept" disabled="disabled")
+                    label Department
+                    input(placeholder="i.e. College of Computing" id="profile-department" type="text")
+        .field
+            a(class="ui submit button" id="create-profile-btn") Submit
