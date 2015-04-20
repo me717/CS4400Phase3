@@ -21,16 +21,6 @@ router.get('/search', function(req, res, next) {
   res.render('search', { title: 'Search Books' });
 });
 
-/* GET search page. */
-router.get('/search', function(req, res, next) {
-  res.render('search', { title: 'Search Books' });
-});
-
-/* GET request hold page. */
-router.get('/hold', function(req, res, next) {
-  res.render('hold', { title: 'Request Hold' });
-});
-
 /* GET request extension page. */
 router.get('/extension', function(req, res, next) {
   res.render('extension', { title: 'Request Extension' });

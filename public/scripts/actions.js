@@ -156,7 +156,7 @@ $(document).ready(function(){
 		$('#search-form').show();
 		$('#hold-content').hide();
 	});
-	
+
 	$("#hold-error").hide();
 	$('#hold-submit').click(function() {
 		var hold_isbn = $('input[name="search-select"]:checked', '#search-table').parent().parent().parent().find('.search-isbn').text();
@@ -175,7 +175,7 @@ $(document).ready(function(){
 					data: {
 						isbn: hold_isbn,
 						copyNumber: hold_copyNumber,
-						username: req.session.username
+						username: ''
 					},
 					method: "POST",
 					 success: function(result){
