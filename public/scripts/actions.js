@@ -168,7 +168,7 @@ $(document).ready(function(){
 				isbn: hold_isbn
 			},
 			 success: function(result){
-				hold_copyNumber = result[0];
+				hold_copyNumber = result[0].copyNumber;
 				alert("copy number: " + hold_copyNumber);
 				$.ajax({
 					url: "db/placeHold",
@@ -208,11 +208,11 @@ $(document).ready(function(){
 			},
 			 success: function(result){
 			 	$('#extension-form').removeClass("error");
-			 	$('#extension-originalcheckout').text(result.dateOfIssue);
-			 	$('#extension-currentextension').text(result.extensionDate);
-			 	$('#extension-newcheckout').text(result.newExtensionDate);
-			 	$('#extension-currentreturn').text(result.returnDate);
-			 	$('#extension-newreturn').text(result.newReturnDate);
+			 	$('#extension-originalcheckout').text(result[0].dateOfIssue);
+			 	$('#extension-currentextension').text(result[0].extensionDate);
+			 	$('#extension-newcheckout').text(result[0].newExtensionDate);
+			 	$('#extension-currentreturn').text(result[0].returnDate);
+			 	$('#extension-newreturn').text(result[0].newReturnDate);
 				$('#extension-content').show();
 			},
 			error: function(xhr, status, error) {
@@ -222,5 +222,117 @@ $(document).ready(function(){
 			}
 		});
 	});
+
+	$('#extension-submit-btn').click(function() {
+		$.ajax({ // check this out, may be janky
+			url: "db/extension",
+			data: {
+				issueId: $('#extension-issueID').val(),
+        		username: ''
+			},
+			method: "POST",
+			 success: function(result){
+			 	alert("extension placed");
+			},
+			error: function(xhr, status, error) {
+				$("#extension-form").addClass("error");
+				$("#extension-error-header").text("Error");
+				$("#extension-error-body").text("Could not process extension");
+			}
+		});
+	});
+
+	// future hold screen
+	$('#futurehold-content').hide();
+	$('#futurehold-isbn-btn').click(function() {
+		$.ajax({ 
+			url: "db/futureRequestSearch",
+			data: {
+				isbn: $('#futurehold-isbn').val()
+			},
+			 success: function(result){
+			 	$('#futurehold-form').removeClass("error");
+			 	$('#futurehold-copyNumber').text(result[0].copyNumber);
+			 	$('#futurehold-expectedDate').text(result[0].availableDate);
+				$('#futurehold-content').show();
+			},
+			error: function(xhr, status, error) {
+				$("#futurehold-form").addClass("error");
+				$("#futurehold-error-header").text("Error");
+				$("#futurehold-error-body").text("Could not find the ISBN.");
+			}
+		});
+	});
+
+	$('#futurehold-submit-btn').click(function() {
+		$.ajax({ 
+			url: "db/futureRequestPlace",
+			data: {
+				username: '',
+				isbn: $('#futurehold-isbn').val(),
+				// copyNumber: $('#futurehold-copyNumber').val()
+				copyNumber: 0
+			},
+			 success: function(result){
+			 	$('#futurehold-form').removeClass("error");
+			 	alert("requested");
+			},
+			error: function(xhr, status, error) {
+				$("#futurehold-form").addClass("error");
+				$("#futurehold-error-header").text("Error");
+				$("#futurehold-error-body").text("Error processing the hold.");
+			}
+		});
+	});
+
+	// track book screen
+	$('#track-content').hide();
+	$('#track-isbn-btn').click(function() {
+		$.ajax({ 
+			url: "db/trackLocation",
+			data: {
+				isbn: $('#track-isbn').val()
+			},
+			 success: function(result){
+			 	$('#track-form').removeClass("error");
+			 	$('#track-floor').text(result[0].floorNumber);
+			 	$('#track-shelf').text(result[0].shelfNumber);
+			 	$('#track-aisle').text(result[0].aisleNumber);
+			 	$('#track-subject').text(result[0].subjectName);
+				$('#track-content').show();
+			},
+			error: function(xhr, status, error) {
+				$("#track-form").addClass("error");
+				$("#track-error-header").text("Error");
+				$("#track-error-body").text("Could not find the ISBN.");
+			}
+		});
+	});
+
+	// checkout screen
+	$('#checkout-content').hide();
+	$('#checkout-issueid-btn').click(function() {
+		$.ajax({ 
+			url: "db/checkout",
+			data: {
+				issueId: $('#checkout-issueID').val()
+			},
+			 success: function(result){
+			 	$('#checkout-form').removeClass("error");
+			 	$('#checkout-username').text("[USERNAME]"); // session variable?
+			 	$('#checkout-isbn').text(result[0].isbn);
+			 	$('#checkout-copynumber').text(result[0].copyNumber);
+			 	$('#checkout-checkoutdate').text(Date()); // CURDATE()
+			 	$('#checkout-returndate').text(result[0].returnDate);
+				$('#checkout-content').show();
+			},
+			error: function(xhr, status, error) {
+				$("#checkout-form").addClass("error");
+				$("#checkout-error-header").text("Error");
+				$("#checkout-error-body").text(error.message);
+			}
+		});
+	});
+
 
 });

@@ -2,5 +2,35 @@ extends layout
 
 block content
   .ui.page.centered.grid
-    .twelve.wide.column
-      p asdkfjasdklfj
+    .eight.wide.column
+        h1(class="ui header") Book Checkout
+        form(class="ui form" id="checkout-form")
+            .ui.error.message
+                .header(id="checkout-error-header")
+                p(id="checkout-error-body")
+            .field
+                label Enter Issue ID
+                input(type="text" id="checkout-issueID" placeholder="Issue ID")
+            .field
+                a(class="ui submit button" id="checkout-issueid-btn") Process
+    .eight.wide.column
+        #checkout-content.ui.form
+            h1(class="ui header") Checkout Details
+            .two.fields
+                .field
+                    label User Name
+                    p(id="checkout-username")
+                .field
+                    label ISBN
+                    p(id="checkout-isbn")
+            .two.fields
+                .field
+                    label Copy Number
+                    p(id="checkout-copynumber")
+                .field
+                    label Check Out Date
+                    p(id="checkout-checkoutdate")
+            .two.fields
+                .field
+                    label Estimated Return Date
+                    p(id="checkout-returndate")

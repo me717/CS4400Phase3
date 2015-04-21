@@ -2,5 +2,26 @@ extends layout
 
 block content
   .ui.page.centered.grid
-    .twelve.wide.column
-      p asdkfjasdklfj
+    .eight.wide.column
+        h1(class="ui header") Future Hold Request on a Book
+        form(class="ui form" id="futurehold-form")
+            .ui.error.message
+                .header(id="futurehold-error-header")
+                p(id="futurehold-error-body")
+            .field
+                label ISBN
+                input(type="text" id="futurehold-isbn" placeholder="ISBN")
+            .field
+                a(class="ui submit button" id="futurehold-isbn-btn") Request
+    .eight.wide.column
+        #futurehold-content.ui.form
+            h1(class="ui header") Request Details
+            .two.fields
+                .field
+                    label Copy Number
+                    p(id="futurehold-copyNumber")
+                .field
+                    label Expected Available Date
+                    p(id="futurehold-expectedDate")
+            .field
+                a(class="ui submit button" id="futurehold-submit-btn") Submit 
