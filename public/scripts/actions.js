@@ -11,6 +11,7 @@ $(document).ready(function(){
 			},
 			 success: function(result){
 				username = $('#login-username').val();
+				window.location.href = "search";
 			},
 			error: function(xhr, status, error) {
 				console.log(error.message);
@@ -31,10 +32,6 @@ $(document).ready(function(){
 			$("#registration-form").addClass("error");
 			$("#registration-error-header").text("Incomplete Form");
 			$("#registration-error-body").text("One or more fields have been left blank.");
-		} else if (false) { // see if there's a duplicate user
-			$("#registration-form").addClass("error");
-			$("#registration-error-header").text("Duplicate User");
-			$("#registration-error-body").text("Another user with this username already exists.");
 		} else if (profile_password != profile_confirm_password) {
 			$("#registration-form").addClass("error");
 			$("#registration-error-header").text("Passwords do not match");
@@ -53,8 +50,8 @@ $(document).ready(function(){
 				},
 				error: function(xhr, status, error) {
 					$("#registration-form").addClass("error");
-					$("#registration-error-header").text("Error");
-					$("#registration-error-body").text(error.message);
+					$("#registration-error-header").text("Duplicate User");
+					$("#registration-error-body").text("Another user with this username already exists.");
 				}
 			});
 			
@@ -96,8 +93,8 @@ $(document).ready(function(){
 			},
 			method: "POST",
 			 success: function(result){
+			 	$('#profile-form').removeClass("error");
 				window.location.href = "search";
-
 			},
 			error: function(xhr, status, error) {
 				$("#profile-form").addClass("error");
@@ -106,4 +103,99 @@ $(document).ready(function(){
 			}
 		});
 	});
+
+	// search/hold screens
+	$('#hold-content').hide();
+	$('#search-btn').click(function() {
+		if ($('#search-isbn').val() === '' && $('#search-title').val() === '' && $('#search-author').val() === ''){
+			$("#search-form").addClass("error");
+			$("#search-error-header").text("Error");
+			$("#search-error-body").text("Please enter the ISBN, Title, or Author.");
+		} else {
+			$.ajax({
+				url: "db/searchBooks",
+				data: {
+					isbn: $('#search-isbn').val(),
+					edition: $('#search-edition').val(),
+					author: $('#search-author').val(),
+					title: $('#search-title').val()
+				},
+				 success: function(result){
+				 	$('#profile-form').removeClass("error");
+				 	$('#search-header').text("Hold Request For Book");
+				 	$('#search-form').hide();
+				 	$('#hold-content').show();
+
+					console.log(result);
+					result.forEach(function(item) {
+						$("#search-table").append(
+							"<tr>" +
+							"<td class='field'><div class='ui radio checkbox'><input type='radio' name='search-select'></div></td>" +
+							"<td class='search-isbn'>" + item.isbn + '</td>' +
+							"<td>" + item.title + '</td>' +
+							"<td>" + item.author + '</td>' +
+							"<td>" + item.edition + '</td>' +
+							"<td>" + item.numberAvailable + '</td>' +
+							"</tr>"
+						);
+					});
+					$('.ui.checkbox').checkbox();
+				},
+				error: function(xhr, status, error) {
+					console.log(error.message);
+					$("#search-form").addClass("Error");
+					$("#search-error-header").text(error.status);
+					$("#search-error-body").text(error.message);
+				}
+			});
+		}
+	});
+
+	$('#hold-back').click(function() {
+		$('#search-header').text("Search Books");
+		$('#search-form').show();
+		$('#hold-content').hide();
+	});
+
+	$("#hold-error").hide();
+	$('#hold-submit').click(function() {
+		var hold_isbn = $('input[name="search-select"]:checked', '#search-table').parent().parent().parent().find('.search-isbn').text();
+		var hold_copyNumber;
+
+		$.ajax({
+			url: "db/getCopyNumber",
+			data: {
+				isbn: hold_isbn
+			},
+			 success: function(result){
+				hold_copyNumber = result[0];
+				alert("copy number: " + hold_copyNumber);
+				$.ajax({
+					url: "db/placeHold",
+					data: {
+						isbn: hold_isbn,
+						copyNumber: hold_copyNumber,
+						username: ''
+					},
+					method: "POST",
+					 success: function(result){
+					 	$("#hold-error").hide();
+						alert(result);
+						console.log(result);
+					},
+					error: function(xhr, status, error) {
+						$("#hold-error").show();
+						$("#hold-error-header").text("Error");
+						$("#hold-error-body").text("Unable to place hold.");
+					}
+				});
+			},
+			error: function(xhr, status, error) {
+				$("#hold-error").show();
+				$("#hold-error-header").text("Error");
+				$("#hold-error-body").text("Unable to find copy number");
+			}
+		});
+	});
+
 });
