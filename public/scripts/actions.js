@@ -393,5 +393,53 @@ $(document).ready(function(){
 		
 	});
 
+	// damaged books report
+	// NOTE: There are no damaged books so we'll have to retest this.
+	$('#damaged-content').hide();
+	$('#damaged-btn').click(function() {
+		$.ajax({
+			url: "db/damagedBooksReport",
+			data: {
+				month: $('#damaged-month').val(),
+				subject1: $('#damaged-subject1').val(),
+				subject2: $('#damaged-subject2').val(),
+				subject3: $('#damaged-subject3').val()
+			},
+			 success: function(result){
+			 	$('#damaged-form').removeClass("error");
+			 	$('#damaged-content').show();
+				$("#search-table").append(
+					"<tr>" +
+					"<td>" + result.month + '</td>' +
+					"<td>" + result.subject + '</td>' +
+					"<td>" + result.count + '</td>' +
+					"</tr>"
+				);
+				$("#search-table").append(
+					"<tr>" +
+					"<td>" + result.month + '</td>' +
+					"<td>" + result.subject + '</td>' +
+					"<td>" + result.count + '</td>' +
+					"</tr>"
+				);
+				$("#search-table").append(
+					"<tr>" +
+					"<td>" + result.month + '</td>' +
+					"<td>" + result.subject + '</td>' +
+					"<td>" + result.count + '</td>' +
+					"</tr>"
+				);
+				$('.ui.checkbox').checkbox();
+			},
+			error: function(xhr, status, error) {
+				console.log(error.message);
+				$("#damaged-form").addClass("Error");
+				$("#damaged-error-header").text(error.status);
+				$("#damaged-error-body").text(error.message);
+			}
+		});
+	});
+	
+
 
 });

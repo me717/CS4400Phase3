@@ -3,4 +3,34 @@ extends layout
 block content
   .ui.page.centered.grid
     .twelve.wide.column
-      p asdkfjasdklfj
+        h1(class="ui header" id="damaged-header") Damaged Books Report
+        form(class="ui form" id="damaged-form")
+            .ui.error.message
+                .header(id="damaged-error-header")
+                p(id="damaged-error-body")
+            .field
+                label Month
+                input(type="text" id="damaged-month" placeholder="Month")
+            .field
+                label Subject 1
+                input(type="text" id="damaged-subject1" placeholder="Subject 1")
+            .field
+                label Subject 2
+                input(type="text" id="damaged-subject2" placeholder="Subject 2")
+            .field
+                label Subject 3
+                input(type="text" id="damaged-subject3" placeholder="Subject 3")
+            .field
+                a(class="ui submit button" id="damaged-btn") Show Report
+
+        #hold-content
+            .ui.negative.message(id="hold-error")
+                .header(id="hold-error-header")
+                p(id="hold-error-body")
+            table(class="ui table")
+                thead
+                    tr
+                        th Month
+                        th Subject
+                        th # of Damaged Books
+                tbody(id="damaged-table")
