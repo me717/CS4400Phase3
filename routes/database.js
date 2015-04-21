@@ -82,6 +82,7 @@ router.get('/searchBooks', function(req, res, next) {
     var query = "SELECT Book.isbn AS isbn, Book.title AS title, " + 
                 "BookCopy.copyNumber AS copyNumber, " + 
                 "Authors.name AS author, COUNT(*) AS numberAvailable " +
+                "Book.edition AS edition, " +
                 "FROM Book JOIN Authors ON Book.isbn = Authors.isbn " +
                 "JOIN BookCopy ON Book.isbn = BookCopy.isbn " +
                 "WHERE (Authors.name = '{author}' OR '{author}' = '') " +
