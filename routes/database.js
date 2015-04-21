@@ -158,7 +158,8 @@ router.post('/placeHold', function(req, res, next) {
                 "(SELECT username FROM StudentAndFaculty WHERE isDebarred = 0)";
     updateQuery = format(updateQuery, {
         isbn: req.body.isbn,
-        copyNumber: req.body.copyNumber
+        copyNumber: req.body.copyNumber,
+        username: req.session.username
     });
     executeQuery(updateQuery, function(error, results, fields) {
         if(error) {
