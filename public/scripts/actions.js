@@ -218,7 +218,7 @@ $(document).ready(function(){
 					 success: function(result){
 					 	$("#hold-error").hide();
 					 	$("#hold-message").show();
-					 	$("#hold-message-header").text("Book checked out!");
+					 	$("#hold-message-header").text("Hold Successful");
 					 	$("#hold-message-body").text("Book Copy #" + hold_copyNumber + " is now on hold. Issue ID: " + result.insertId);
 					 	$('#hold-submit').addClass("disabled");
 					},
@@ -248,15 +248,23 @@ $(document).ready(function(){
 				issueId: $('#extension-issueID').val()
 			},
 			 success: function(result){
-			 	$('#extension-form').removeClass("error");
-			 	$('#extension-originalcheckout').text(result[0].dateOfIssue);
-			 	$('#extension-currentextension').text(result[0].extensionDate);
-			 	$('#extension-newcheckout').text(result[0].newExtensionDate);
-			 	$('#extension-currentreturn').text(result[0].returnDate);
-			 	$('#extension-newreturn').text(result[0].newReturnDate);
-				$('#extension-content').show();
+			 	if (result.length) {
+		 		 	$('#extension-form').removeClass("error");
+		 		 	$('#extension-originalcheckout').text(result[0].dateOfIssue);
+		 		 	$('#extension-currentextension').text(result[0].extensionDate);
+		 		 	$('#extension-newcheckout').text(result[0].newExtensionDate);
+		 		 	$('#extension-currentreturn').text(result[0].returnDate);
+		 		 	$('#extension-newreturn').text(result[0].newReturnDate);
+		 			$('#extension-content').show();
+			 	} else {
+			 		$("#extension-message").hide();
+			 		$("#extension-form").addClass("error");
+			 		$("#extension-error-header").text("Error");
+			 		$("#extension-error-body").text("Could not find the Issue ID.");
+			 	}
 			},
 			error: function(xhr, status, error) {
+				$("#extension-message").hide();
 				$("#extension-form").addClass("error");
 				$("#extension-error-header").text("Error");
 				$("#extension-error-body").text("Could not find the Issue ID.");
@@ -264,6 +272,7 @@ $(document).ready(function(){
 		});
 	});
 
+	$("#extension-message").hide();
 	$('#extension-submit-btn').click(function() {
 		$.ajax({ // check this out, may be janky
 			url: "db/extension",
@@ -273,9 +282,21 @@ $(document).ready(function(){
 			},
 			method: "POST",
 			 success: function(result){
-			 	alert("extension placed");
+			 	console.log(result);
+			 	if (result.affectedRows > 0) {
+			 		$("#extension-message").show();
+			 		$("#extension-form").removeClass("error");
+			 		$("#extension-message-header").text("Success");
+			 		$("#extension-message-body").text("Book has been checked out.");
+			 	} else {
+			 		$("#extension-message").hide();
+			 		$("#extension-form").addClass("error");
+			 		$("#extension-error-header").text("Error");
+			 		$("#extension-error-body").text("Could not process extension");
+			 	}
 			},
 			error: function(xhr, status, error) {
+				$("#extension-message").hide();
 				$("#extension-form").addClass("error");
 				$("#extension-error-header").text("Error");
 				$("#extension-error-body").text("Could not process extension");
