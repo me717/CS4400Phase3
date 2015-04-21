@@ -153,14 +153,15 @@ router.post('/placeHold', function(req, res, next) {
 router.get('/extensionInfo', function(req, res, next) {
    var issuesQuery = "SELECT dateOfIssue, extensionDate, returnDate, " +
                     "CURDATE() AS newExtensionDate, " +
-                    "DATE_ADD(CURDATE(), CURDATE(), INTERVAL 14 DAY) AS newReturnDate " +
+                    "DATE_ADD(CURDATE(),  INTERVAL 14 DAY) AS newReturnDate " +
                     "FROM ISSUES WHERE issueId = {issueId}";
     issuesQuery = format(issuesQuery, {
         issueId: req.query.issueId
     });
-    executeQuery(insertQuery, function(error, results, fields){
+    executeQuery(issuesQuery, function(error, results, fields){
         if(error) {
             res.status(500);
+            error.query = issuesQuery;
             res.send(error);  
         }
         res.status(200);
@@ -208,7 +209,7 @@ router.get('/futureRequestSearch', function(req, res, next) {
     query = format(query, {
         isbn: req.query.isbn
     });
-    executeQuery(insertQuery, function(error, results, fields){
+    executeQuery(query, function(error, results, fields){
         if(error) {
             res.status(500);
             res.send(error);  
@@ -352,7 +353,7 @@ router.post('/return', function(req, res, next) {
 router.post('/penalty', function(req, res, next) {
     var userQuery = "SELECT username FROM Issues "
                     "WHERE isbn = '{isbn}' " +
-                    "AND copyNumber = '{copyNumber}' " +
+                    "AND copyNumber = {copyNumber} " +
                     "ORDER BY dateOfIssue DESC " +
                     "LIMIT 1";
     userQuery = format(userQuery, {
