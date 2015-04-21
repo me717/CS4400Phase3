@@ -299,7 +299,7 @@ router.post('/checkout', function(req, res, next) {
                     error2.query = updateQuery;
                     res.send(error2);  
                 } else {
-                    var issuesQuery = "UPDATE Issues SET returnDate = DATE_ADD(CURDATE, INTERVAL DAY, 14) WHERE issueId = '{issueId}'";
+                    var issuesQuery = "UPDATE Issues SET returnDate = DATE_ADD(CURDATE(), INTERVAL 14 DAY) WHERE issueId = {issueId}";
                     issuesQuery = format(issuesQuery, {
                         issueId: req.body.issueId
                     });
@@ -313,8 +313,6 @@ router.post('/checkout', function(req, res, next) {
                             res.send(results3);
                         }
                     });
-                    // res.status(200);
-                    // res.send(results2);
                 }
             });
         } else {
