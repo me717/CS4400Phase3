@@ -347,8 +347,19 @@ router.post('/checkout', function(req, res, next) {
                             error3.query = issuesQuery;
                             res.send(error);
                         } else{
-                            res.status(200);
-                            res.send(results3);
+                            var stephenQuery = "SELECT * FROM Issues Where issueId = {issueId}";
+                            stephenQuery = format(stephenQuery, {
+                                issueId: req.body.issueId
+                            });
+                            executeQuery(query, function(error, results, fields){
+                                if(error) {
+                                    res.status(500);
+                                    res.send(error);  
+                                } else {
+                                    res.status(200);
+                                    res.send(results);
+                                }
+                            });
                         }
                     });
                 }
