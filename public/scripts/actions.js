@@ -1,6 +1,10 @@
 $(document).ready(function(){
 	var username; // the user logged in
 
+	var months = ['', 'Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+	$('.ui.dropdown').dropdown();
+
 	// login page
 	$('#login-btn').click(function() {
 		$.ajax({
@@ -14,8 +18,9 @@ $(document).ready(function(){
 				window.location.href = "search";
 			},
 			error: function(xhr, status, error) {
-				console.log(error.message);
-				window.location.href = "";
+				$("#login-form").addClass("error");
+				$("#login-error-header").text("Unable to Login");
+				$("#login-error-body").text("Make sure your username and password are correct.");
 			}
 		});
 	});
@@ -106,6 +111,7 @@ $(document).ready(function(){
 
 	// search/hold screens
 	$('#hold-content').hide();
+	$('#hold-message').hide();
 	$('#search-btn').click(function() {
 		if ($('#search-isbn').val() === '' && $('#search-title').val() === '' && $('#search-author').val() === ''){
 			$("#search-form").addClass("error");
@@ -140,12 +146,41 @@ $(document).ready(function(){
 						);
 					});
 					$('.ui.checkbox').checkbox();
+					$.ajax({
+						url: "db/searchReservedBooks",
+						data: {
+							isbn: $('#search-isbn').val(),
+							edition: $('#search-edition').val(),
+							author: $('#search-author').val(),
+							title: $('#search-title').val()
+						},
+						 success: function(result){
+							result.forEach(function(item) {
+								$("#search-table").append(
+									"<tr class='active'>" +
+									"<td class='disabled'>Reserved Book</td>" +
+									"<td class='search-isbn'>" + item.isbn + '</td>' +
+									"<td>" + item.title + '</td>' +
+									"<td>" + item.author + '</td>' +
+									"<td>" + item.edition + '</td>' +
+									"<td>" + item.numberAvailable + '</td>' +
+									"</tr>"
+								);
+							});
+						},
+						error: function(xhr, status, error) {
+							console.log(error.message);
+							$("#search-form").addClass("Error");
+							$("#search-error-header").text("Error");
+							$("#search-error-body").text("Error while searching reserved books");
+						}
+					});
 				},
 				error: function(xhr, status, error) {
 					console.log(error.message);
 					$("#search-form").addClass("Error");
-					$("#search-error-header").text(error.status);
-					$("#search-error-body").text(error.message);
+					$("#search-error-header").text("Error");
+					$("#search-error-body").text("Error while searching books");
 				}
 			});
 		}
@@ -153,7 +188,9 @@ $(document).ready(function(){
 
 	$('#hold-back').click(function() {
 		$('#search-header').text("Search Books");
+		$("#search-table").empty();
 		$('#search-form').show();
+		$('#hold-submit').removeClass("disabled");
 		$('#hold-content').hide();
 	});
 
@@ -169,7 +206,6 @@ $(document).ready(function(){
 			},
 			 success: function(result){
 				hold_copyNumber = result[0].copyNumber;
-				alert("copy number: " + hold_copyNumber);
 				$.ajax({
 					url: "db/placeHold",
 					data: {
@@ -180,8 +216,10 @@ $(document).ready(function(){
 					method: "POST",
 					 success: function(result){
 					 	$("#hold-error").hide();
-						alert(result);
-						console.log(result);
+					 	$("#hold-message").show();
+					 	$("#hold-message-header").text("Book checked out!");
+					 	$("#hold-message-body").text("Book Copy #" + hold_copyNumber + " is now on hold.");
+					 	$('#hold-submit').addClass("disabled");
 					},
 					error: function(xhr, status, error) {
 						$("#hold-error").show();
@@ -317,22 +355,212 @@ $(document).ready(function(){
 			data: {
 				issueId: $('#checkout-issueID').val()
 			},
+			method: 'POST',
 			 success: function(result){
-			 	$('#checkout-form').removeClass("error");
-			 	$('#checkout-username').text("[USERNAME]"); // session variable?
-			 	$('#checkout-isbn').text(result[0].isbn);
-			 	$('#checkout-copynumber').text(result[0].copyNumber);
-			 	$('#checkout-checkoutdate').text(Date()); // CURDATE()
-			 	$('#checkout-returndate').text(result[0].returnDate);
-				$('#checkout-content').show();
+			 	if (result.message === "Hold has expired") {
+			 		$("#checkout-form").addClass("error");
+			 		$("#checkout-error-header").text("Error");
+			 		$("#checkout-error-body").text("Hold has expired");
+			 	} else {
+			 		console.log(result);
+		 		 	$('#checkout-form').removeClass("error");
+		 		 	$('#checkout-username').text(result[0].username);
+		 		 	$('#checkout-isbn').text(result[0].isbn);
+		 		 	$('#checkout-copynumber').text(result[0].copyNumber);
+		 		 	$('#checkout-checkoutdate').text(Date()); // CURDATE()
+		 		 	$('#checkout-returndate').text(result[0].returnDate);
+		 			$('#checkout-content').show();
+			 	}
+			 	
 			},
 			error: function(xhr, status, error) {
 				$("#checkout-form").addClass("error");
 				$("#checkout-error-header").text("Error");
-				$("#checkout-error-body").text(error.message);
+				$("#checkout-error-body").text("Invalid IssueID");
 			}
 		});
 	});
 
+	// return screen
+	$('#return-content').hide();
+	$('#return-message').hide();
+	$('#return-issueid-btn').click(function() {
+		var damaged = 0;
+		if ($('#return-damaged').hasClass("checked")) {
+			damaged = 1;
+		}
+		$.ajax({ 
+			url: "db/return",
+			data: {
+				issueId: $('#return-issueID').val(),
+				isDamaged: damaged
+			},
+			method: "POST",
+			 success: function(result){
+			 	if(result.length) {
+		 		 	$('#return-form').removeClass("error");
+		 		 	$('#return-username').text(result[0].username);
+		 		 	$('#return-isbn').text(result[0].isbn);
+		 		 	$('#return-copynumber').text(result[0].copyNumber);
+		 			$('#return-content').show();
+		 			if ($('#return-damaged').hasClass("checked")) {
+		 				$('#return-form').removeClass("error");
+		 				$('#return-message').show();
+		 				$('#return-message').removeClass("positive");
+		 				$('#return-message').addClass("warning");
+		 				$("#return-message-header").text("Book has been damaged");
+		 				$("#return-message-body").html("<a href='/lostdamaged'>Click here</a> to proceed to the damaged books screen.");
+		 			} else {
+		 				$('#return-form').removeClass("error");
+		 				$('#return-message').show();
+		 				$('#return-message').removeClass("warning");
+		 				$('#return-message').addClass("positive");
+		 				$("#return-message-header").text("Success");
+		 				$("#return-message-body").text("Book returned safely");
+		 			}
+			 	} else {
+			 		$('#return-message').hide();
+			 		$("#return-form").addClass("error");
+			 		$("#return-error-header").text("Error");
+			 		$("#return-error-body").text("Invalid IssueID");
+			 	}
+			},
+			error: function(xhr, status, error) {
+				$('#return-message').hide();
+				$("#return-form").addClass("error");
+				$("#return-error-header").text("Error");
+				$("#return-error-body").text("Invalid IssueID");
+			}
+		});
+	});
+
+	// lostdamaged screen
+	$('#penalty-submit-btn').click(function() {
+		$.ajax({ 
+			url: "db/penalty",
+			data: {
+				isbn: $('#penalty-isbn').val(),
+				copyNumber: $('#penalty-copyNumber').val(),
+				penalty: $('#penalty-amount').val()
+			},
+			method: "POST",
+			 success: function(result){
+			 	$('#penalty-form').removeClass("error");
+			 	$('#penalty-time').text(Date());
+			 	$('#penalty-lastUser').text(result.username);
+			},
+			error: function(xhr, status, error) {
+				$("#penalty-form").addClass("error");
+				$("#penalty-error-header").text("Error");
+				$("#penalty-error-body").text(error.message);
+			}
+		});
+		
+	});
+
+	// damaged books report
+	// NOTE: There are no damaged books so we'll have to retest this.
+	$('#damaged-content').hide();
+	$('#damaged-btn').click(function() {
+		$.ajax({
+			url: "db/damagedBooksReport",
+			data: {
+				month: $('#damaged-month').val(),
+				subject1: $('#damaged-subject1').val(),
+				subject2: $('#damaged-subject2').val(),
+				subject3: $('#damaged-subject3').val()
+			},
+			 success: function(result){
+			 	$('#damaged-form').removeClass("error");
+			 	$('#damaged-content').show();
+				$("#search-table").append(
+					"<tr>" +
+					"<td>" + months[result.month] + '</td>' +
+					"<td>" + result.subject + '</td>' +
+					"<td>" + result.count + '</td>' +
+					"</tr>"
+				);
+				$("#search-table").append(
+					"<tr>" +
+					"<td>" + months[result.month] + '</td>' +
+					"<td>" + result.subject + '</td>' +
+					"<td>" + result.count + '</td>' +
+					"</tr>"
+				);
+				$("#search-table").append(
+					"<tr>" +
+					"<td>" + months[result.month] + '</td>' +
+					"<td>" + result.subject + '</td>' +
+					"<td>" + result.count + '</td>' +
+					"</tr>"
+				);
+				$('.ui.checkbox').checkbox();
+			},
+			error: function(xhr, status, error) {
+				console.log(error.message);
+				$("#damaged-form").addClass("Error");
+				$("#damaged-error-header").text(error.status);
+				$("#damaged-error-body").text(error.message);
+			}
+		});
+	});
+	
+	// popular books report
+	$.ajax({
+		url: "db/popularBooksReport",
+		 success: function(result){
+		 	result.forEach(function(item) {
+		 		$("#popular-table").append(
+		 			"<tr>" +
+		 			"<td>" + months[item.month] + '</td>' +
+		 			"<td>" + item.title + '</td>' +
+		 			"<td>" + item.count + '</td>' +
+		 			"</tr>"
+		 		);
+		 	});
+		},
+		error: function(xhr, status, error) {
+			alert("popular book report failed");
+		}
+	});
+
+	// frequent user report
+	$.ajax({
+		url: "db/frequentUserReport",
+		 success: function(result){
+		 	result.forEach(function(item) {
+		 		$("#frequent-table").append(
+		 			"<tr>" +
+		 			"<td>" + months[item.month] + '</td>' +
+		 			"<td>" + StudentAndFaculty.firstname +
+		 			" " + StudentAndFaculty.lastname + '</td>' +
+		 			"<td>" + item.count + '</td>' +
+		 			"</tr>"
+		 		);
+		 	});
+		},
+		error: function(xhr, status, error) {
+			alert("frequent user report failed");
+		}
+	});
+
+	// popular subjects report
+	$.ajax({
+		url: "db/popularSubjectReport",
+		 success: function(result){
+		 	result.forEach(function(item) {
+		 		$("#popularSubjects-table").append(
+		 			"<tr>" +
+		 			"<td>" + months[item.month] + '</td>' +
+		 			"<td>" + item.subject + '</td>' +
+		 			"<td>" + item.count + '</td>' +
+		 			"</tr>"
+		 		);
+		 	});
+		},
+		error: function(xhr, status, error) {
+			alert("popular subject report failed");
+		}
+	});
 
 });

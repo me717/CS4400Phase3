@@ -24,6 +24,9 @@ block content
             .ui.negative.message(id="hold-error")
                 .header(id="hold-error-header")
                 p(id="hold-error-body")
+            .ui.message(id="hold-message")
+                .header(id="hold-message-header")
+                p(id="hold-message-body")
             table(class="ui table")
                 thead
                     tr
@@ -34,23 +37,5 @@ block content
                         th Edition
                         th # of copies available
                 tbody(id="search-table")
-                    tr
-                        td(class="field")
-                            .ui.radio.checkbox
-                                input(type="radio" name="search-select")
-                        td(class="search-isbn") 0-000-00000-0
-                        td Test Data asdfasdfasdf
-                        td Stephen Song
-                        td 14
-                        td 124124
-                    tr
-                        td(class="field")
-                            .ui.radio.checkbox
-                                input(type="radio" name="search-select")
-                        td(class="search-isbn") 3-444-12355-1
-                        td Test Data for Dummies
-                        td Bill Leahy
-                        td 14
-                        td N/A
             a(class="ui submit button" id="hold-back") Back
             a(class="ui submit button" id="hold-submit") Submit

@@ -1,5 +1,32 @@
 nav(class="ui fixed menu inverted navbar")
-       a(href="" class="brand item") Project Name
-       a(href="" class="active item") Home
-       a(href="" class="item") Features
-       a(href="" class="item") Contact
+       a(href="/" class="brand item") CS 4400 Library Project
+       .ui.dropdown.item
+           | Account
+           i(class="dropdown icon")
+           .menu
+             a(href="/" class="item") Login
+             a(href="/registration" class="item") Registration
+             a(href="/profile" class="item") Create a Profile
+       .ui.dropdown.item
+           | User
+           i(class="dropdown icon")
+           .menu      
+               a(href="/search" class="item") Search for Books/Hold Books
+               a(href="/extension" class="item") Request Extension
+               a(href="/futurehold" class="item") Request Future Hold
+               a(href="/track" class="item") Track Location
+        .ui.dropdown.item
+            | Staff Functions
+            i(class="dropdown icon")
+            .menu      
+               a(href="/checkout" class="item") Checkout Book
+               a(href="/return" class="item") Return Book
+               a(href="/lostdamaged" class="item") Lost/Damaged Book
+        .ui.dropdown.item
+            | Reports
+            i(class="dropdown icon")
+            .menu      
+               a(href="/damagedreport" class="item") Damaged Book Report
+               a(href="/popularreport" class="item") Popular Book Report
+               a(href="/frequentreport" class="item") Frequent Users Report
+               a(href="/subjectreport" class="item") Popular Subjects Report

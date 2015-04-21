@@ -2,5 +2,29 @@ extends layout
 
 block content
   .ui.page.centered.grid
-    .twelve.wide.column
-      p asdkfjasdklfj
+    .eight.wide.column
+        h1(class="ui header") Lost/Damaged Book
+        form(class="ui form" id="penalty-form")
+            .ui.error.message
+                .header(id="penalty-error-header")
+                p(id="penalty-error-body")
+            .field
+                label Enter ISBN
+                input(type="text" id="penalty-isbn" placeholder="ISBN")
+            .field
+                label Book Copy Number
+                input(type="text" id="penalty-copyNumber" placeholder="Copy #")
+    .eight.wide.column
+        #penalty-content.ui.form
+            h1(class="ui header") Penalty Details
+            .field
+                label Time
+                p(id="penalty-time")
+            .field
+                label Last User of Book
+                p(id="penalty-lastUser")
+            .field
+                label Amount to be Charged
+                input(type="text" id="penalty-amount" placeholder="Without Dollar Signs (i.e. 19.99)")
+            .field
+                a(class="ui submit button" id="penalty-submit-btn") Submit
