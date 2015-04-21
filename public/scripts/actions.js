@@ -111,6 +111,7 @@ $(document).ready(function(){
 
 	// search/hold screens
 	$('#hold-content').hide();
+	$('#hold-message').hide();
 	$('#search-btn').click(function() {
 		if ($('#search-isbn').val() === '' && $('#search-title').val() === '' && $('#search-author').val() === ''){
 			$("#search-form").addClass("error");
@@ -145,12 +146,41 @@ $(document).ready(function(){
 						);
 					});
 					$('.ui.checkbox').checkbox();
+					$.ajax({
+						url: "db/searchReservedBooks",
+						data: {
+							isbn: $('#search-isbn').val(),
+							edition: $('#search-edition').val(),
+							author: $('#search-author').val(),
+							title: $('#search-title').val()
+						},
+						 success: function(result){
+							result.forEach(function(item) {
+								$("#search-table").append(
+									"<tr class='active'>" +
+									"<td class='disabled'>Reserved Book</td>" +
+									"<td class='search-isbn'>" + item.isbn + '</td>' +
+									"<td>" + item.title + '</td>' +
+									"<td>" + item.author + '</td>' +
+									"<td>" + item.edition + '</td>' +
+									"<td>" + item.numberAvailable + '</td>' +
+									"</tr>"
+								);
+							});
+						},
+						error: function(xhr, status, error) {
+							console.log(error.message);
+							$("#search-form").addClass("Error");
+							$("#search-error-header").text("Error");
+							$("#search-error-body").text("Error while searching reserved books");
+						}
+					});
 				},
 				error: function(xhr, status, error) {
 					console.log(error.message);
 					$("#search-form").addClass("Error");
-					$("#search-error-header").text(error.status);
-					$("#search-error-body").text(error.message);
+					$("#search-error-header").text("Error");
+					$("#search-error-body").text("Error while searching books");
 				}
 			});
 		}
@@ -160,6 +190,7 @@ $(document).ready(function(){
 		$('#search-header').text("Search Books");
 		$("#search-table").empty();
 		$('#search-form').show();
+		$('#hold-submit').removeClass("disabled");
 		$('#hold-content').hide();
 	});
 
@@ -185,8 +216,10 @@ $(document).ready(function(){
 					method: "POST",
 					 success: function(result){
 					 	$("#hold-error").hide();
-						alert("Copy Number" + hold_copyNumber + " reserved");
-						console.log(result);
+					 	$("#hold-message").show();
+					 	$("#hold-message-header").text("Book checked out!");
+					 	$("#hold-message-body").text("Book Copy #" + hold_copyNumber + " is now on hold.");
+					 	$('#hold-submit').addClass("disabled");
 					},
 					error: function(xhr, status, error) {
 						$("#hold-error").show();
@@ -324,18 +357,18 @@ $(document).ready(function(){
 			},
 			method: 'POST',
 			 success: function(result){
-			 	console.log(result);
 			 	if (result.message === "Hold has expired") {
 			 		$("#checkout-form").addClass("error");
 			 		$("#checkout-error-header").text("Error");
 			 		$("#checkout-error-body").text("Hold has expired");
 			 	} else {
+			 		console.log(result);
 		 		 	$('#checkout-form').removeClass("error");
-		 		 	$('#checkout-username').text("[USERNAME]"); // session variable?
-		 		 	$('#checkout-isbn').text(result.isbn);
-		 		 	$('#checkout-copynumber').text(result.copyNumber);
+		 		 	$('#checkout-username').text(result[0].username);
+		 		 	$('#checkout-isbn').text(result[0].isbn);
+		 		 	$('#checkout-copynumber').text(result[0].copyNumber);
 		 		 	$('#checkout-checkoutdate').text(Date()); // CURDATE()
-		 		 	$('#checkout-returndate').text(result.returnDate);
+		 		 	$('#checkout-returndate').text(result[0].returnDate);
 		 			$('#checkout-content').show();
 			 	}
 			 	
@@ -343,13 +376,14 @@ $(document).ready(function(){
 			error: function(xhr, status, error) {
 				$("#checkout-form").addClass("error");
 				$("#checkout-error-header").text("Error");
-				$("#checkout-error-body").text(error.message);
+				$("#checkout-error-body").text("Invalid IssueID");
 			}
 		});
 	});
 
 	// return screen
 	$('#return-content').hide();
+	$('#return-message').hide();
 	$('#return-issueid-btn').click(function() {
 		var damaged = 0;
 		if ($('#return-damaged').hasClass("checked")) {
@@ -363,23 +397,39 @@ $(document).ready(function(){
 			},
 			method: "POST",
 			 success: function(result){
-			 	console.log(result);
-			 	$('#return-form').removeClass("error");
-			 	$('#return-username').text(result.username); // session variable?
-			 	$('#return-isbn').text(result.isbn);
-			 	$('#return-copynumber').text(result.copyNumber);
-				$('#return-content').show();
-				if ($('#return-damaged').hasClass("checked")) {
-					alert("damaged book return, going to screen");
-					window.location.href = "lostdamaged";
-				} else {
-					alert("book returned safely");
-				}
+			 	if(result.length) {
+		 		 	$('#return-form').removeClass("error");
+		 		 	$('#return-username').text(result[0].username);
+		 		 	$('#return-isbn').text(result[0].isbn);
+		 		 	$('#return-copynumber').text(result[0].copyNumber);
+		 			$('#return-content').show();
+		 			if ($('#return-damaged').hasClass("checked")) {
+		 				$('#return-form').removeClass("error");
+		 				$('#return-message').show();
+		 				$('#return-message').removeClass("positive");
+		 				$('#return-message').addClass("warning");
+		 				$("#return-message-header").text("Book has been damaged");
+		 				$("#return-message-body").html("<a href='/lostdamaged'>Click here</a> to proceed to the damaged books screen.");
+		 			} else {
+		 				$('#return-form').removeClass("error");
+		 				$('#return-message').show();
+		 				$('#return-message').removeClass("warning");
+		 				$('#return-message').addClass("positive");
+		 				$("#return-message-header").text("Success");
+		 				$("#return-message-body").text("Book returned safely");
+		 			}
+			 	} else {
+			 		$('#return-message').hide();
+			 		$("#return-form").addClass("error");
+			 		$("#return-error-header").text("Error");
+			 		$("#return-error-body").text("Invalid IssueID");
+			 	}
 			},
 			error: function(xhr, status, error) {
+				$('#return-message').hide();
 				$("#return-form").addClass("error");
 				$("#return-error-header").text("Error");
-				$("#return-error-body").text(error.message);
+				$("#return-error-body").text("Invalid IssueID");
 			}
 		});
 	});

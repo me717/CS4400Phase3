@@ -8,6 +8,9 @@ block content
             .ui.error.message
                 .header(id="return-error-header")
                 p(id="return-error-body")
+            .ui.message(id="return-message")
+                .header(id="return-message-header")
+                p(id="return-message-body")
             .field
                 label Enter Issue ID
                 input(type="text" id="return-issueID" placeholder="Issue ID")
@@ -19,7 +22,7 @@ block content
                 a(class="ui submit button" id="return-issueid-btn") Return Book
     .eight.wide.column
         #return-content.ui.form
-            h1(class="ui header") Checkout Details
+            h1(class="ui header") Return Details
             .two.fields
                 .field
                     label User Name
