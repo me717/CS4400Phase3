@@ -273,11 +273,12 @@ router.post('/checkout', function(req, res, next) {
     executeQuery(query, function(error, results, fields){
         if(error) {
             res.status(500);
+            error.query = query;
             res.send(error);  
         } else if (results.length) {
             isbn = results[0].isbn;
-            copyNumber = copyNumber[0].copyNumber;
-                        var updateQuery = "UPDATE BookCopy SET isOnHold =  0, isCheckedOut = 1" +
+            copyNumber = results[0].copyNumber;
+                        var updateQuery = "UPDATE BookCopy SET isOnHold =  0, isCheckedOut = 1 " +
                         "WHERE isbn = '{isbn}' AND copyNumber = {copyNumber} ";
             updateQuery = format(updateQuery, {
                 isbn: isbn,
@@ -286,10 +287,12 @@ router.post('/checkout', function(req, res, next) {
             executeQuery(updateQuery, function(error2, results2, fields){
                 if(error2) {
                     res.status(500);
+                    error2.query = updateQuery;
                     res.send(error2);  
+                } else {
+                    res.status(200);
+                    res.send(results2);
                 }
-                res.status(200);
-                res.send(results2);
             });
         } else {
             res.status(200);
@@ -372,33 +375,34 @@ router.post('/penalty', function(req, res, next) {
         if(error) {
             res.status(500);
             res.send(error);
+        } else {
+            username = res[0].username;
+            var changePenaltyQuery = "UPDATE StudentAndFaculty " +
+                                "SET penalty = penalty + {penalty} " +
+                                "WHERE username = '{username}'";
+            changePenaltyQuery = format(changePenaltyQuery, {
+                penalty: req.body.penalty,
+                username: username
+            });
+            executeQuery(changePenaltyQuery, function(error, results, fields){
+                if(error) {
+                    res.status(500);
+                    res.send(error);  
+                } else {
+                    var debarredQuery = "UPDATE StudentAndFaculty " +
+                                        "SET isDebarred = 1 " +
+                                        "WHERE penalty > 100";
+                    executeQuery(debarredQuery, function(error, results, fields){
+                        if(error) {
+                            res.status(500);
+                            res.send(error);  
+                        }
+                        res.status(200);
+                        res.send(results);
+                    });
+                }
+            });
         }
-        username = res[0].username;
-    });
-    var changePenaltyQuery = "UPDATE StudentAndFaculty " +
-                            "SET penalty = penalty + {penalty} " +
-                            "WHERE username = '{username}'";
-    changePenaltyQuery = format(changePenaltyQuery, {
-        penalty: req.body.penalty,
-        username: username
-    });
-        executeQuery(changePenaltyQuery, function(error, results, fields){
-        if(error) {
-            res.status(500);
-            res.send(error);  
-        }
-    });
-
-    var debarredQuery = "UPDATE StudentAndFaculty " +
-                        "SET isDebarred = 1 " +
-                        "WHERE penalty > 100";
-    executeQuery(debarredQuery, function(error, results, fields){
-        if(error) {
-            res.status(500);
-            res.send(error);  
-        }
-        res.status(200);
-        res.send(results);
     });
 });
 
