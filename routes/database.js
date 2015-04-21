@@ -114,8 +114,8 @@ router.post('/placeHold', function(req, res, next) {
                 "WHERE isbn = '{isbn}' AND copyNumber = {copyNumber} " +
                 "AND isOnHold = 0 AND isCheckedOut = 0 " + 
                 "AND isDamaged = 0 " +
-                "AND '{username}' NOT IN " +
-                "(SELECT username FROM StudentAndFaculty WHERE isDebarred = 1)";
+                "AND '{username}' IN " +
+                "(SELECT username FROM StudentAndFaculty WHERE isDebarred = 0)";
     updateQuery = format(updateQuery, {
         isbn: req.body.isbn,
         copyNumber: req.body.copyNumber
@@ -294,8 +294,22 @@ router.post('/checkout', function(req, res, next) {
                     error2.query = updateQuery;
                     res.send(error2);  
                 } else {
-                    res.status(200);
-                    res.send(results2);
+                    var issuesQuery = "UPDATE Issues SET returnDate = DATE_ADD(CURDATE, INTERVAL DAY, 14) WHERE issueId = '{issueId}'";
+                    issuesQuery = format(issuesQuery, {
+                        issueId: req.body.issueId
+                    });
+                    executeQuery(issuesQuery, function(error3, results3, fields3)  {
+                        if(error3) {
+                            res.status(500);
+                            error3.query = issuesQuery;
+                            res.send(error);
+                        } else{
+                            res.status(200);
+                            res.send(results3);
+                        }
+                    });
+                    // res.status(200);
+                    // res.send(results2);
                 }
             });
         } else {
