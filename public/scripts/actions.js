@@ -310,6 +310,30 @@ $(document).ready(function(){
 		});
 	});
 
+	// checkout screen
+	$('#checkout-content').hide();
+	$('#checkout-issueid-btn').click(function() {
+		$.ajax({ 
+			url: "db/checkout",
+			data: {
+				issueId: $('#checkout-issueID').val()
+			},
+			 success: function(result){
+			 	$('#checkout-form').removeClass("error");
+			 	$('#checkout-username').text("[USERNAME]"); // session variable?
+			 	$('#checkout-isbn').text(result[0].isbn);
+			 	$('#checkout-copynumber').text(result[0].copyNumber);
+			 	$('#checkout-checkoutdate').text(Date()); // CURDATE()
+			 	$('#checkout-returndate').text(result[0].returnDate);
+				$('#checkout-content').show();
+			},
+			error: function(xhr, status, error) {
+				$("#checkout-form").addClass("error");
+				$("#checkout-error-header").text("Error");
+				$("#checkout-error-body").text(error.message);
+			}
+		});
+	});
 
 
 });

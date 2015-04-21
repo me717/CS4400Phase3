@@ -284,9 +284,9 @@ router.post('/checkout', function(req, res, next) {
                 copyNumber: copyNumber
             });
             executeQuery(updateQuery, function(error2, results2, fields){
-                if(error) {
+                if(error2) {
                     res.status(500);
-                    res.send(error);  
+                    res.send(error2);  
                 }
                 res.status(200);
                 res.send(results2);
