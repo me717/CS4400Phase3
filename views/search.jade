@@ -1,0 +1,56 @@
+extends layout
+
+block content
+  .ui.page.centered.grid
+    .sixteen.wide.column
+        h1(class="ui header" id="search-header") Search Books
+        form(class="ui form" id="search-form")
+            .ui.error.message
+                .header(id="search-error-header")
+                p(id="search-error-body")
+            .field
+                label ISBN
+                input(type="text" id="search-isbn" placeholder="ISBN")
+            .field
+                label Title
+                input(type="text" id="search-title" placeholder="Title")
+            .field
+                label Author
+                input(type="text" id="search-author" placeholder="Author")
+            .field
+                a(class="ui submit button" id="search-btn") Search
+
+        #hold-content
+            .ui.negative.message(id="hold-error")
+                .header(id="hold-error-header")
+                p(id="hold-error-body")
+            table(class="ui table")
+                thead
+                    tr
+                        th Select
+                        th ISBN
+                        th Title of the Book
+                        th Author
+                        th Edition
+                        th # of copies available
+                tbody(id="search-table")
+                    tr
+                        td(class="field")
+                            .ui.radio.checkbox
+                                input(type="radio" name="search-select")
+                        td(class="search-isbn") 0-000-00000-0
+                        td Test Data asdfasdfasdf
+                        td Stephen Song
+                        td 14
+                        td 124124
+                    tr
+                        td(class="field")
+                            .ui.radio.checkbox
+                                input(type="radio" name="search-select")
+                        td(class="search-isbn") 3-444-12355-1
+                        td Test Data for Dummies
+                        td Bill Leahy
+                        td 14
+                        td N/A
+            a(class="ui submit button" id="hold-back") Back
+            a(class="ui submit button" id="hold-submit") Submit
