@@ -215,7 +215,7 @@ router.get('/extensionInfo', function(req, res, next) {
 });
 
 router.post('/extension', function(req, res, next) {
-    var updateQuery = "UPDATE Issues JOIN BookCopy ON Issues.isbn = BookCopy.isbn " +
+    var updateQuery = "UPDATE Issues JOIN BookCopy ON Issues.isbn = BookCopy.isbn AND Issues.copyNumber = BookCopy.copyNumber " +
                         "JOIN StudentAndFaculty ON Issues.username = StudentAndFaculty.username " +
                         "SET Issues.countOfExtensions = Issues.countOfExtensions + 1, " +
                         "Issues.extensionDate = CURDATE(), Issues.returnDate = DATE_ADD(CURDATE(),  INTERVAL 14 DAY)" +
