@@ -499,7 +499,7 @@ router.get('/damagedBooksReport', function(req, res, next) {
                     "JOIN BookCopy " +
                     "ON (BookCopy.isbn = Book.isbn) " +
                     "JOIN Issues " +
-                    "ON (Issues.copyNumber = BookCopy.copyNumber) " +
+                    "ON (Issues.isbn = BookCopy.isbn AND Issues.copyNumber = BookCopy.copyNumber) " +
                 "WHERE MONTH(Issues.returnDate) = {month} " +
                     "AND BookCopy.isDamaged = 1 " +
                     "AND (Book.subjectName = '{subject1}' " +
