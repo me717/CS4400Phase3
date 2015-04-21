@@ -222,7 +222,8 @@ router.post('/extension', function(req, res, next) {
                         "WHERE Issues.issueId = {issueId} AND Issues.isbn NOT IN " +
                         "(SELECT isbn FROM BookCopy WHERE futureRequester IS NOT NULL) " +
                         "AND ((StudentAndFaculty.isFaculty = 1 AND Issues.countOfExtensions < 5) " +
-                        "OR (StudentAndFaculty.isFaculty = 0 AND Issues.countOfExtensions < 2))";
+                        "OR (StudentAndFaculty.isFaculty = 0 AND Issues.countOfExtensions < 2)) " +
+                        "AND BookCopy.isCheckedOut = 1";
     updateQuery = format(updateQuery, {
         issueId: req.body.issueId,
         username: req.session.username
@@ -249,7 +250,7 @@ router.get('/futureRequestSearch', function(req, res, next) {
                 "AND (DATEDIFF(CURDATE(), Issues.ReturnDate) < 0 " +
                     "OR Issues.ReturnDate IS NULL) " +
                 "AND BookCopy.isOnHold = 0 " +
-                "ORDER BY availableDate DESC " +
+                "ORDER BY availableDate " +
                 "LIMIT 1";
     query = format(query, {
         isbn: req.query.isbn
