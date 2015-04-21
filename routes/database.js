@@ -119,6 +119,8 @@ router.post('/placeHold', function(req, res, next) {
                 "WHERE isbn = '{isbn}' AND copyNumber = {copyNumber} " +
                 "AND isOnHold = 0 AND isCheckedOut = 0 " + 
                 "AND isDamaged = 0 " +
+                "AND '{isbn}' IN " +
+                "(SELECT isbn FROM Book WHERE isReserved = 0) " +
                 "AND '{username}' IN " +
                 "(SELECT username FROM StudentAndFaculty WHERE isDebarred = 0)";
     updateQuery = format(updateQuery, {
