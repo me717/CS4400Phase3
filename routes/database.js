@@ -243,7 +243,7 @@ router.get('/futureRequestPlace', function(req, res, next) {
 //Track location
 router.get('/trackLocation', function(req, res, next) {
     var query = "SELECT Book.shelfNumber AS shelfNumber, Shelf.aisleNumber AS aisleNumber, " +
-                "Floor.floorNumber AS floorNumber, Book.subjectName AS subjectName" + 
+                "Floor.floorNumber AS floorNumber, Book.subjectName AS subjectName " + 
                 "FROM Book " +
                 "JOIN Shelf ON Book.shelfNumber = Shelf.shelfNumber " +
                 "JOIN Floor ON Shelf.floorNumber = Floor.floorNumber " +
@@ -284,9 +284,9 @@ router.post('/checkout', function(req, res, next) {
                 copyNumber: copyNumber
             });
             executeQuery(updateQuery, function(error2, results2, fields){
-                if(error) {
+                if(error2) {
                     res.status(500);
-                    res.send(error);  
+                    res.send(error2);  
                 }
                 res.status(200);
                 res.send(results2);
@@ -302,14 +302,13 @@ router.post('/checkout', function(req, res, next) {
 //return
 router.post('/return', function(req, res, next) {
     var issuesQuery = "SELECT Issues.username AS username, " +
-                        "Issues.returnDate AS returnDate " +
-                    "FROM Issues WHERE Issues.isbn = '{isbn}' " +
-                     "AND Issues.copyNumber = {copyNumber} " +
+                        "Issues.returnDate AS returnDate, Issues.isbn AS isbn " +
+                        "Issues.copyNumber AS copyNumber " +
+                    "FROM Issues WHERE Issues.issueId = {issueId} " +
                     "ORDER BY returnDate DESC " +
                     "LIMIT 1";
     issuesQuery = format(issuesQuery, {
-        isbn: req.body.isbn,
-        copyNumber: req.body.copyNumber
+        issueId: req.body.issueId
     });
     var username;
     var returnDate;
@@ -320,6 +319,8 @@ router.post('/return', function(req, res, next) {
         } else {
             username = results[0].username;
             returnDate = results[0].returnDate;
+            isbn = results[0].isbn;
+            copyNumber = results[0].copyNumber;
             var penaltyQuery = "UPDATE StudentAndFaculty " +
                             "SET penalty = penalty + DATEDIFF(CURDATE(), '{returnDate}') * 0.5 "
                             "WHERE username = '{username}' " +
@@ -336,6 +337,11 @@ router.post('/return', function(req, res, next) {
                     var returnQuery = "UPDATE BookCopy SET isDamaged = {isDamaged}, isCheckedOut = 0 " +
                                         "WHERE BookCopy.copyNumber = {copyNumber} " +
                                         "AND BookCopy.isbn = '{isbn}'";
+                    returnQuery = format(returnQuery, {
+                        isbn: isbn,
+                        isDamaged: req.body.isDamaged,
+                        copyNumber: copyNumber
+                    })
                     executeQuery(returnQuery, function(error, results, fields){
                         if(error) {
                             res.status(500);
@@ -407,11 +413,12 @@ router.get('/damagedBooksReport', function(req, res, next) {
                     "ON (Issues.copyNumber = BookCopy.copyNumber) " +
                 "WHERE MONTH(Issues.returnDate) = {month} " +
                     "AND BookCopy.isDamaged = 1 " +
-                    "AND (Book.subjectName = {subject1} " +
-                    "OR Book.subjectName = {subject2} " +
-                    "OR Book.subjectName = {subject3}) " +
+                    "AND (Book.subjectName = '{subject1}' " +
+                    "OR Book.subjectName = '{subject2}' " +
+                    "OR Book.subjectName = '{subject3}') " +
                 "GROUP BY (subject)";
     query = format(query, {
+        month: req.query.month,
         subject1: req.query.subject1,
         subject2: req.query.subject2,
         subject3: req.query.subject3
@@ -419,6 +426,7 @@ router.get('/damagedBooksReport', function(req, res, next) {
     executeQuery(query, function(error, results, fields){
         if(error) {
             res.status(500);
+            error.query = query;
             res.send(error);  
         }
         res.status(200);
@@ -443,7 +451,7 @@ router.get('/popularBooksReport', function(req, res, next) {
                 "WHERE MONTH(Issues.dateOfIssue)  = 2 " +
                 "GROUP BY Book.isbn " +
                 "LIMIT 3) " +
-                "ORDER BY MONTH ASC, COUNT(*) DESC";
+                "ORDER BY MONTH ASC, count DESC";
     executeQuery(query, function(error, results, fields){
         if(error) {
             res.status(500);
@@ -473,7 +481,7 @@ router.get('/frequentUserReport', function(req, res, next) {
                     "GROUP BY StudentAndFaculty.username " +
                     "HAVING COUNT(*) >= 10 " +
                     "LIMIT 5) " +
-                    "ORDER BY MONTH ASC, COUNT(*) DESC";
+                    "ORDER BY MONTH ASC, count DESC";
     executeQuery(query, function(error, results, fields){
         if(error) {
             res.status(500);
@@ -493,7 +501,7 @@ router.get('/popularSubjectReport', function(req, res, next) {
                 "WHERE MONTH(Issues.dateOfIssue) = 1 " +
                 "GROUP BY subject) " +
                 // "ORDER BY count DESC " +
-                "UNION ALL "
+                "UNION ALL " +
                 "(SELECT 2 AS month, Book.subjectName AS subject, COUNT(*) AS count " +
                 "FROM Issues " + 
                     "JOIN Book " +
@@ -504,6 +512,7 @@ router.get('/popularSubjectReport', function(req, res, next) {
     executeQuery(query, function(error, results, fields){
         if(error) {
             res.status(500);
+            error.query = query;
             res.send(error);  
         }
         res.status(200);
