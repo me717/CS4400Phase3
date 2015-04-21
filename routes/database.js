@@ -390,7 +390,7 @@ router.post('/return', function(req, res, next) {
             res.status(500);
             error.query = issuesQuery;
             res.send(error);  
-        } else {
+        } else if (results.length) {
             username = results[0].username;
             returnDate = results[0].returnDate;
             isbn = results[0].isbn;
@@ -439,6 +439,9 @@ router.post('/return', function(req, res, next) {
                     });
                 }
             });
+        } else {
+            res.status(200);
+            res.send([]);
         }
     });
 });
