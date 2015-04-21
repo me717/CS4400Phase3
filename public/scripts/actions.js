@@ -295,11 +295,10 @@ $(document).ready(function(){
 			},
 			 success: function(result){
 			 	$('#track-form').removeClass("error");
-			 	// Fill these in when the alises come through
-			 	$('#track-floor').text(result[0].);
-			 	$('#track-shelf').text(result[0].);
-			 	$('#track-aisle').text(result[0].);
-			 	$('#track-subject').text(result[0].);
+			 	$('#track-floor').text(result[0].floorNumber);
+			 	$('#track-shelf').text(result[0].shelfNumber);
+			 	$('#track-aisle').text(result[0].aisleNumber);
+			 	$('#track-subject').text(result[0].subjectName);
 				$('#track-content').show();
 			},
 			error: function(xhr, status, error) {
