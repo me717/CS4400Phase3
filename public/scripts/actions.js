@@ -208,11 +208,11 @@ $(document).ready(function(){
 			},
 			 success: function(result){
 			 	$('#extension-form').removeClass("error");
-			 	$('#extension-originalcheckout').text(result[0].dateOfIssue.toUTCString());
-			 	$('#extension-currentextension').text(result[0].extensionDate.toUTCString());
-			 	$('#extension-newcheckout').text(result[0].newExtensionDate.toUTCString());
-			 	$('#extension-currentreturn').text(result[0].returnDate.toUTCString());
-			 	$('#extension-newreturn').text(result[0].newReturnDate.toUTCString());
+			 	$('#extension-originalcheckout').text(result[0].dateOfIssue);
+			 	$('#extension-currentextension').text(result[0].extensionDate);
+			 	$('#extension-newcheckout').text(result[0].newExtensionDate);
+			 	$('#extension-currentreturn').text(result[0].returnDate);
+			 	$('#extension-newreturn').text(result[0].newReturnDate);
 				$('#extension-content').show();
 			},
 			error: function(xhr, status, error) {
@@ -223,18 +223,37 @@ $(document).ready(function(){
 		});
 	});
 
+	$('#extension-submit-btn').click(function() {
+		$.ajax({ // check this out, may be janky
+			url: "db/extension",
+			data: {
+				issueId: $('#extension-issueID').val(),
+        		username: ''
+			},
+			method: "POST",
+			 success: function(result){
+			 	alert("extension placed");
+			},
+			error: function(xhr, status, error) {
+				$("#extension-form").addClass("error");
+				$("#extension-error-header").text("Error");
+				$("#extension-error-body").text("Could not process extension");
+			}
+		});
+	});
+
 	// future hold screen
 	$('#futurehold-content').hide();
 	$('#futurehold-isbn-btn').click(function() {
 		$.ajax({ 
 			url: "db/futureRequestSearch",
 			data: {
-				isbn: $('#futurehold-isbn-btn').val()
+				isbn: $('#futurehold-isbn').val()
 			},
 			 success: function(result){
 			 	$('#futurehold-form').removeClass("error");
 			 	$('#futurehold-copyNumber').text(result[0].copyNumber);
-			 	$('#futurehold-expectedDate').text(result[0].availableDate.toUTCString());
+			 	$('#futurehold-expectedDate').text(result[0].availableDate);
 				$('#futurehold-content').show();
 			},
 			error: function(xhr, status, error) {
@@ -250,8 +269,9 @@ $(document).ready(function(){
 			url: "db/futureRequestPlace",
 			data: {
 				username: '',
-				isbn: $('#futurehold-isbn-btn').val(),
-				copyNumber: $('#futurehold-copyNumber').val()
+				isbn: $('#futurehold-isbn').val(),
+				// copyNumber: $('#futurehold-copyNumber').val()
+				copyNumber: 0
 			},
 			 success: function(result){
 			 	$('#futurehold-form').removeClass("error");
