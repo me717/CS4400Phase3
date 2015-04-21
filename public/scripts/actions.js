@@ -208,11 +208,11 @@ $(document).ready(function(){
 			},
 			 success: function(result){
 			 	$('#extension-form').removeClass("error");
-			 	$('#extension-originalcheckout').text(result.dateOfIssue);
-			 	$('#extension-currentextension').text(result.extensionDate);
-			 	$('#extension-newcheckout').text(result.newExtensionDate);
-			 	$('#extension-currentreturn').text(result.returnDate);
-			 	$('#extension-newreturn').text(result.newReturnDate);
+			 	$('#extension-originalcheckout').text(result.dateOfIssue.toUTCString());
+			 	$('#extension-currentextension').text(result.extensionDate.toUTCString());
+			 	$('#extension-newcheckout').text(result.newExtensionDate.toUTCString());
+			 	$('#extension-currentreturn').text(result.returnDate.toUTCString());
+			 	$('#extension-newreturn').text(result.newReturnDate.toUTCString());
 				$('#extension-content').show();
 			},
 			error: function(xhr, status, error) {
@@ -223,4 +223,26 @@ $(document).ready(function(){
 		});
 	});
 
+	// future hold screen
+	$('#futurehold-content').hide();
+	$('#futurehold-isbn-btn').click(function() {
+		$.ajax({ 
+			url: "db/futureRequestSearch",
+			data: {
+				isbn: $('#futurehold-isbn-btn').val()
+			},
+			 success: function(result){
+			 	$('#futurehold-form').removeClass("error");
+			 	$('#futurehold-copyNumber').text(result.copyNumber);
+			 	$('#futurehold-expectedDate').text(result.availableDate.toUTCString());
+				$('#futurehold-content').show();
+			},
+			error: function(xhr, status, error) {
+				$("#futurehold-form").addClass("error");
+				$("#futurehold-error-header").text("Error");
+				$("#futurehold-error-body").text("Could not find the ISBN.");
+			}
+		});
+		
+	});
 });
