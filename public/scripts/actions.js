@@ -375,7 +375,7 @@ $(document).ready(function(){
 			url: "db/penalty",
 			data: {
 				isbn: $('#penalty-isbn').val(),
-				copyNumber: $('#penalty-copyNumber').val()
+				copyNumber: $('#penalty-copyNumber').val(),
 				penalty: $('#penalty-amount').val()
 			},
 			method: "POST",

@@ -305,7 +305,7 @@ router.post('/checkout', function(req, res, next) {
 //return
 router.post('/return', function(req, res, next) {
     var issuesQuery = "SELECT Issues.username AS username, " +
-                        "Issues.returnDate AS returnDate, Issues.isbn AS isbn " +
+                        "Issues.returnDate AS returnDate, Issues.isbn AS isbn, " +
                         "Issues.copyNumber AS copyNumber " +
                     "FROM Issues WHERE Issues.issueId = {issueId} " +
                     "ORDER BY returnDate DESC " +
@@ -318,6 +318,7 @@ router.post('/return', function(req, res, next) {
     executeQuery(issuesQuery, function(error, results, fields){
         if(error) {
             res.status(500);
+            error.query = issuesQuery;
             res.send(error);  
         } else {
             username = results[0].username;
@@ -335,6 +336,7 @@ router.post('/return', function(req, res, next) {
             executeQuery(penaltyQuery, function(error, results, fields){
                 if(error) {
                     res.status(500);
+                    error.query = penaltyQuery;
                     res.send(error);  
                 } else {
                     var returnQuery = "UPDATE BookCopy SET isDamaged = {isDamaged}, isCheckedOut = 0 " +
@@ -348,6 +350,7 @@ router.post('/return', function(req, res, next) {
                     executeQuery(returnQuery, function(error, results, fields){
                         if(error) {
                             res.status(500);
+                            error.query = returnQuery;
                             res.send(error);  
                         }
                         res.status(200);
@@ -361,7 +364,7 @@ router.post('/return', function(req, res, next) {
 
 //penalty
 router.post('/penalty', function(req, res, next) {
-    var userQuery = "SELECT username FROM Issues "
+    var userQuery = "SELECT username FROM Issues " +
                     "WHERE isbn = '{isbn}' " +
                     "AND copyNumber = {copyNumber} " +
                     "ORDER BY dateOfIssue DESC " +
@@ -376,7 +379,8 @@ router.post('/penalty', function(req, res, next) {
             res.status(500);
             res.send(error);
         } else {
-            username = res[0].username;
+            username = results[0].username;
+            console.log(userQuery);
             var changePenaltyQuery = "UPDATE StudentAndFaculty " +
                                 "SET penalty = penalty + {penalty} " +
                                 "WHERE username = '{username}'";
@@ -384,6 +388,7 @@ router.post('/penalty', function(req, res, next) {
                 penalty: req.body.penalty,
                 username: username
             });
+            console.log(changePenaltyQuery);
             executeQuery(changePenaltyQuery, function(error, results, fields){
                 if(error) {
                     res.status(500);
