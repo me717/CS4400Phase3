@@ -17,10 +17,15 @@ router.get('/login', function(req, res, next) {
             res.status(500);
             res.send(error);  
         }
-        req.session.username = results[0].username;
-        console.log(req.session.username);
-        res.status(200);
-        res.send(results);
+        if(results.length) {
+            req.session.username = results[0].username;
+            console.log(req.session.username);
+            res.status(200);
+            res.send(results);
+        } else {
+            res.status(500);
+            res.send({message: "Invalid login"})
+        }
 
     });
 });
