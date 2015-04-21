@@ -561,9 +561,27 @@ router.get('/getCopyNumber', function(req, res, next) {
         if(error) {
             res.status(500);
             res.send(error);  
+        } else {
+            res.status(200);
+            res.send(results);
         }
-        res.status(200);
-        res.send(results);
+    });
+});
+
+router.get('/isStaff', function(req, res, next) {
+    var query = "SELECT * FROM Staff WHERE username = '{username}'";
+    query = format(query, {
+        username: req.session.username;
+    });
+    executeQuery(query, function(error, results, fields){
+        if(error) {
+            res.status(500);
+            res.send(error);  
+        } else {
+            res.status(200);
+            var isStaff = results.length
+            res.send({isStaff: isStaff});
+        }
     });
 });
 //HELPER FUNCTION
