@@ -198,7 +198,7 @@ router.get('/futureRequestSearch', function(req, res, next) {
                 "Issues.ReturnDate AS availableDate " +
                 "FROM BookCopy LEFT JOIN Issues ON " +
                 "BookCopy.isbn = Issues.isbn AND " + 
-                "BookCopy.copyNumber = Issues.copyNumber)" +
+                "BookCopy.copyNumber = Issues.copyNumber " +
                 "WHERE BookCopy.isbn = '{isbn}' " +
                 "AND BookCopy.futureRequester IS NULL "
                 "AND (DATEDIFF(CURDATE(), Issues.ReturnDate) < 0 " +
@@ -303,7 +303,7 @@ router.post('/return', function(req, res, next) {
     var issuesQuery = "SELECT Issues.username AS username, " +
                         "Issues.returnDate AS returnDate " +
                     "FROM Issues WHERE Issues.isbn = '{isbn}' " +
-                     "AND Issues.copyNumber = '{copyNumber}' " +
+                     "AND Issues.copyNumber = {copyNumber} " +
                     "ORDER BY returnDate DESC " +
                     "LIMIT 1";
     issuesQuery = format(issuesQuery, {
