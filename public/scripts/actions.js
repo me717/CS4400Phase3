@@ -334,5 +334,37 @@ $(document).ready(function(){
 		});
 	});
 
-
+	// return screen
+	$('#return-content').hide();
+	$('#return-issueid-btn').click(function() {
+		var damaged = 0;
+		if ($('#return-damaged').hasClass("checked")) {
+			damaged = 1;
+		}
+		$.ajax({ 
+			url: "db/return",
+			data: {
+				issueId: $('#return-issueID').val(),
+				isDamaged: damaged
+			},
+			method: "POST",
+			 success: function(result){
+			 	$('#return-form').removeClass("error");
+			 	$('#return-username').text(result[0].username); // session variable?
+			 	$('#return-isbn').text(result[0].isbn);
+			 	$('#return-copynumber').text(result[0].copyNumber);
+				$('#return-content').show();
+				if ($('#return-damaged').hasClass("checked")) {
+					alert("damaged book return, going to screen");
+				} else {
+					alert("book returned safely");
+				}
+			},
+			error: function(xhr, status, error) {
+				$("#return-form").addClass("error");
+				$("#return-error-header").text("Error");
+				$("#return-error-body").text(error.message);
+			}
+		});
+	});
 });

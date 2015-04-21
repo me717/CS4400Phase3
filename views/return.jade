@@ -2,5 +2,32 @@ extends layout
 
 block content
   .ui.page.centered.grid
-    .twelve.wide.column
-      p asdkfjasdklfj
+    .eight.wide.column
+        h1(class="ui header") Return Book
+        form(class="ui form" id="return-form")
+            .ui.error.message
+                .header(id="return-error-header")
+                p(id="return-error-body")
+            .field
+                label Enter Issue ID
+                input(type="text" id="return-issueID" placeholder="Issue ID")
+            .inline.field
+                .ui.toggle.checkbox#return-damaged
+                    input(type="checkbox")
+                    label This book was damaged
+            .field
+                a(class="ui submit button" id="return-issueid-btn") Return Book
+    .eight.wide.column
+        #return-content.ui.form
+            h1(class="ui header") Checkout Details
+            .two.fields
+                .field
+                    label User Name
+                    p(id="return-username")
+                .field
+                    label ISBN
+                    p(id="return-isbn")
+            .two.fields
+                .field
+                    label Copy Number
+                    p(id="return-copynumber")
