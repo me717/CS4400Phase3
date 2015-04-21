@@ -3,6 +3,8 @@ $(document).ready(function(){
 
 	var months = ['', 'Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
+	$('.ui.dropdown').dropdown();
+
 	// login page
 	$('#login-btn').click(function() {
 		$.ajax({
@@ -155,6 +157,7 @@ $(document).ready(function(){
 
 	$('#hold-back').click(function() {
 		$('#search-header').text("Search Books");
+		$("#search-table").empty();
 		$('#search-form').show();
 		$('#hold-content').hide();
 	});
@@ -171,7 +174,6 @@ $(document).ready(function(){
 			},
 			 success: function(result){
 				hold_copyNumber = result[0].copyNumber;
-				alert("copy number: " + hold_copyNumber);
 				$.ajax({
 					url: "db/placeHold",
 					data: {
@@ -182,7 +184,7 @@ $(document).ready(function(){
 					method: "POST",
 					 success: function(result){
 					 	$("#hold-error").hide();
-						alert(result);
+						alert("Copy Number" + hold_copyNumber + " reserved");
 						console.log(result);
 					},
 					error: function(xhr, status, error) {
@@ -319,14 +321,23 @@ $(document).ready(function(){
 			data: {
 				issueId: $('#checkout-issueID').val()
 			},
+			method: 'POST',
 			 success: function(result){
-			 	$('#checkout-form').removeClass("error");
-			 	$('#checkout-username').text("[USERNAME]"); // session variable?
-			 	$('#checkout-isbn').text(result[0].isbn);
-			 	$('#checkout-copynumber').text(result[0].copyNumber);
-			 	$('#checkout-checkoutdate').text(Date()); // CURDATE()
-			 	$('#checkout-returndate').text(result[0].returnDate);
-				$('#checkout-content').show();
+			 	console.log(result);
+			 	if (result.message === "Hold has expired") {
+			 		$("#checkout-form").addClass("error");
+			 		$("#checkout-error-header").text("Error");
+			 		$("#checkout-error-body").text("Hold has expired");
+			 	} else {
+		 		 	$('#checkout-form').removeClass("error");
+		 		 	$('#checkout-username').text("[USERNAME]"); // session variable?
+		 		 	$('#checkout-isbn').text(result.isbn);
+		 		 	$('#checkout-copynumber').text(result.copyNumber);
+		 		 	$('#checkout-checkoutdate').text(Date()); // CURDATE()
+		 		 	$('#checkout-returndate').text(result.returnDate);
+		 			$('#checkout-content').show();
+			 	}
+			 	
 			},
 			error: function(xhr, status, error) {
 				$("#checkout-form").addClass("error");
@@ -351,10 +362,11 @@ $(document).ready(function(){
 			},
 			method: "POST",
 			 success: function(result){
+			 	console.log(result);
 			 	$('#return-form').removeClass("error");
-			 	$('#return-username').text(result[0].username); // session variable?
-			 	$('#return-isbn').text(result[0].isbn);
-			 	$('#return-copynumber').text(result[0].copyNumber);
+			 	$('#return-username').text(result.username); // session variable?
+			 	$('#return-isbn').text(result.isbn);
+			 	$('#return-copynumber').text(result.copyNumber);
 				$('#return-content').show();
 				if ($('#return-damaged').hasClass("checked")) {
 					alert("damaged book return, going to screen");
@@ -465,7 +477,6 @@ $(document).ready(function(){
 	$.ajax({
 		url: "db/frequentUserReport",
 		 success: function(result){
-		 	console.log(result);
 		 	result.forEach(function(item) {
 		 		$("#frequent-table").append(
 		 			"<tr>" +
@@ -486,7 +497,6 @@ $(document).ready(function(){
 	$.ajax({
 		url: "db/popularSubjectReport",
 		 success: function(result){
-		 	console.log(result);
 		 	result.forEach(function(item) {
 		 		$("#popularSubjects-table").append(
 		 			"<tr>" +
