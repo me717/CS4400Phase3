@@ -356,6 +356,7 @@ $(document).ready(function(){
 				$('#return-content').show();
 				if ($('#return-damaged').hasClass("checked")) {
 					alert("damaged book return, going to screen");
+					window.location.href = "lostdamaged";
 				} else {
 					alert("book returned safely");
 				}
@@ -369,19 +370,19 @@ $(document).ready(function(){
 	});
 
 	// lostdamaged screen
-	$('#penalty-lastUser-btn').click(function() {
+	$('#penalty-submit-btn').click(function() {
 		$.ajax({ 
 			url: "db/penalty",
 			data: {
 				isbn: $('#penalty-isbn').val(),
 				copyNumber: $('#penalty-copyNumber').val()
+				penalty: $('#penalty-amount').val()
 			},
 			method: "POST",
 			 success: function(result){
 			 	$('#penalty-form').removeClass("error");
 			 	$('#penalty-time').text(Date());
 			 	$('#penalty-lastUser').text(result.username);
-			 	$('#penalty-submit').removeClass("disabled");
 			},
 			error: function(xhr, status, error) {
 				$("#penalty-form").addClass("error");
