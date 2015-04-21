@@ -243,6 +243,25 @@ $(document).ready(function(){
 				$("#futurehold-error-body").text("Could not find the ISBN.");
 			}
 		});
-		
+	});
+
+	$('#futurehold-submit-btn').click(function() {
+		$.ajax({ 
+			url: "db/futureRequestPlace",
+			data: {
+				username: '',
+				isbn: $('#futurehold-isbn-btn').val(),
+				copyNumber: $('#futurehold-copyNumber').val()
+			},
+			 success: function(result){
+			 	$('#futurehold-form').removeClass("error");
+			 	alert("requested");
+			},
+			error: function(xhr, status, error) {
+				$("#futurehold-form").addClass("error");
+				$("#futurehold-error-header").text("Error");
+				$("#futurehold-error-body").text("Error processing the hold.");
+			}
+		});
 	});
 });
