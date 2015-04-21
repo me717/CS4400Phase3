@@ -249,7 +249,7 @@ router.get('/futureRequestSearch', function(req, res, next) {
                 "AND (DATEDIFF(CURDATE(), Issues.ReturnDate) < 0 " +
                     "OR Issues.ReturnDate IS NULL) " +
                 "AND BookCopy.isOnHold = 0 " +
-                "ORDER BY availableDate DESC " +
+                "ORDER BY availableDate " +
                 "LIMIT 1";
     query = format(query, {
         isbn: req.query.isbn
