@@ -606,7 +606,7 @@ router.get('/getCopyNumber', function(req, res, next) {
 router.get('/isStaff', function(req, res, next) {
     var query = "SELECT * FROM Staff WHERE username = '{username}'";
     query = format(query, {
-        username: req.session.username;
+        username: req.session.username
     });
     executeQuery(query, function(error, results, fields){
         if(error) {
