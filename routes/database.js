@@ -113,7 +113,9 @@ router.post('/placeHold', function(req, res, next) {
     var updateQuery = "UPDATE BookCopy SET isOnHold = 1, futureRequester = NULL " +
                 "WHERE isbn = '{isbn}' AND copyNumber = {copyNumber} " +
                 "AND isOnHold = 0 AND isCheckedOut = 0 " + 
-                "AND isDamaged = 0";
+                "AND isDamaged = 0 " +
+                "AND '{username}' NOT IN " +
+                "(SELECT username FROM StudentAndFaculty WHERE isDebarred = 1)";
     updateQuery = format(updateQuery, {
         isbn: req.body.isbn,
         copyNumber: req.body.copyNumber
@@ -130,7 +132,7 @@ router.post('/placeHold', function(req, res, next) {
             var insertQuery = "INSERT INTO Issues (username, isbn, copyNumber, " + 
                                 "dateOfIssue, returnDate, extensionDate, countOfExtensions) " +
                                 "SELECT username, '{isbn}', {copyNumber}, CURDATE(), " + 
-                                "DATE_ADD(CURDATE(), INTERVAL 3 DAY), DATE_ADD(CURDATE(), INTERVAL 17 DAY), 0 " +
+                                "DATE_ADD(CURDATE(), INTERVAL 3 DAY), CURDATE(), 0 " +
                                 "FROM StudentAndFaculty WHERE username = '{username}' AND isDebarred = 0";
             insertQuery = format(insertQuery, {
                 isbn: req.body.isbn,
