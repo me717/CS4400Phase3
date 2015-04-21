@@ -77,36 +77,48 @@ $(document).ready(function(){
 		}
 	});
 	$('#create-profile-btn').click(function() {
-		var is_faculty = 0;
-		var dept_name;
-		if($('#faculty-check').hasClass("checked")) {
-			is_faculty = 1;
-			dept_name = $('#profile-department').val();
-		}
-		$.ajax({ // check this out, may be janky
-			url: "db/profile",
-			data: {
-				username: username,
-				firstName: $('#profile-firstname').val(),
-				lastName: $('#profile-lastname').val(),
-				dob: $('#profile-dob').val(),
-				gender: $('#profile-gender').val(),
-				email: $('#profile-email').val(),
-			    address: $('#profile-address').val(),
-			    isFaculty: is_faculty,
-			    dept: dept_name
-			},
-			method: "POST",
-			 success: function(result){
-			 	$('#profile-form').removeClass("error");
-				window.location.href = "search";
-			},
-			error: function(xhr, status, error) {
+		if ($('#profile-firstname').val() === '' ||
+			$('#profile-lastname').val() === '' ||
+			$('#profile-gender').val() === '' ||
+			$('#profile-dob').val() === '' ||
+			$('#profile-email').val() === '' ||
+			$('#profile-address').val() === '') {
 				$("#profile-form").addClass("error");
 				$("#profile-error-header").text("Error");
-				$("#profile-error-body").text(error.message);
+				$("#profile-error-body").text("Make sure all the fields are filled out.");
+		} else {
+			var is_faculty = 0;
+			var dept_name;
+			if($('#faculty-check').hasClass("checked")) {
+				is_faculty = 1;
+				dept_name = $('#profile-department').val();
 			}
-		});
+			$.ajax({ // check this out, may be janky
+				url: "db/profile",
+				data: {
+					username: username,
+					firstName: $('#profile-firstname').val(),
+					lastName: $('#profile-lastname').val(),
+					dob: $('#profile-dob').val(),
+					gender: $('#profile-gender').val(),
+					email: $('#profile-email').val(),
+				    address: $('#profile-address').val(),
+				    isFaculty: is_faculty,
+				    dept: dept_name
+				},
+				method: "POST",
+				 success: function(result){
+				 	$('#profile-form').removeClass("error");
+					window.location.href = "search";
+				},
+				error: function(xhr, status, error) {
+					$("#profile-form").addClass("error");
+					$("#profile-error-header").text("Error");
+					$("#profile-error-body").text(error.message);
+				}
+			});
+		}
+		
 	});
 
 	// search/hold screens
@@ -191,6 +203,7 @@ $(document).ready(function(){
 		$("#search-table").empty();
 		$('#search-form').show();
 		$('#hold-submit').removeClass("disabled");
+		$("#hold-message").hide();
 		$('#hold-content').hide();
 	});
 
@@ -217,12 +230,13 @@ $(document).ready(function(){
 					 success: function(result){
 					 	$("#hold-error").hide();
 					 	$("#hold-message").show();
-					 	$("#hold-message-header").text("Book checked out!");
-					 	$("#hold-message-body").text("Book Copy #" + hold_copyNumber + " is now on hold.");
+					 	$("#hold-message-header").text("Hold Successful");
+					 	$("#hold-message-body").text("Book Copy #" + hold_copyNumber + " is now on hold. Issue ID: " + result.insertId);
 					 	$('#hold-submit').addClass("disabled");
 					},
 					error: function(xhr, status, error) {
 						$("#hold-error").show();
+						$("#hold-message").hide();
 						$("#hold-error-header").text("Error");
 						$("#hold-error-body").text("Unable to place hold.");
 					}
@@ -230,6 +244,7 @@ $(document).ready(function(){
 			},
 			error: function(xhr, status, error) {
 				$("#hold-error").show();
+				$("#hold-message").hide();
 				$("#hold-error-header").text("Error");
 				$("#hold-error-body").text("Unable to find copy number");
 			}
@@ -245,15 +260,23 @@ $(document).ready(function(){
 				issueId: $('#extension-issueID').val()
 			},
 			 success: function(result){
-			 	$('#extension-form').removeClass("error");
-			 	$('#extension-originalcheckout').text(result[0].dateOfIssue);
-			 	$('#extension-currentextension').text(result[0].extensionDate);
-			 	$('#extension-newcheckout').text(result[0].newExtensionDate);
-			 	$('#extension-currentreturn').text(result[0].returnDate);
-			 	$('#extension-newreturn').text(result[0].newReturnDate);
-				$('#extension-content').show();
+			 	if (result.length) {
+		 		 	$('#extension-form').removeClass("error");
+		 		 	$('#extension-originalcheckout').text(result[0].dateOfIssue);
+		 		 	$('#extension-currentextension').text(result[0].extensionDate);
+		 		 	$('#extension-newcheckout').text(result[0].newExtensionDate);
+		 		 	$('#extension-currentreturn').text(result[0].returnDate);
+		 		 	$('#extension-newreturn').text(result[0].newReturnDate);
+		 			$('#extension-content').show();
+			 	} else {
+			 		$("#extension-message").hide();
+			 		$("#extension-form").addClass("error");
+			 		$("#extension-error-header").text("Error");
+			 		$("#extension-error-body").text("Could not find the Issue ID.");
+			 	}
 			},
 			error: function(xhr, status, error) {
+				$("#extension-message").hide();
 				$("#extension-form").addClass("error");
 				$("#extension-error-header").text("Error");
 				$("#extension-error-body").text("Could not find the Issue ID.");
@@ -261,6 +284,7 @@ $(document).ready(function(){
 		});
 	});
 
+	$("#extension-message").hide();
 	$('#extension-submit-btn').click(function() {
 		$.ajax({ // check this out, may be janky
 			url: "db/extension",
@@ -270,9 +294,21 @@ $(document).ready(function(){
 			},
 			method: "POST",
 			 success: function(result){
-			 	alert("extension placed");
+			 	console.log(result);
+			 	if (result.affectedRows > 0) {
+			 		$("#extension-message").show();
+			 		$("#extension-form").removeClass("error");
+			 		$("#extension-message-header").text("Success");
+			 		$("#extension-message-body").text("Book has been checked out.");
+			 	} else {
+			 		$("#extension-message").hide();
+			 		$("#extension-form").addClass("error");
+			 		$("#extension-error-header").text("Error");
+			 		$("#extension-error-body").text("Could not process extension");
+			 	}
 			},
 			error: function(xhr, status, error) {
+				$("#extension-message").hide();
 				$("#extension-form").addClass("error");
 				$("#extension-error-header").text("Error");
 				$("#extension-error-body").text("Could not process extension");
@@ -289,10 +325,16 @@ $(document).ready(function(){
 				isbn: $('#futurehold-isbn').val()
 			},
 			 success: function(result){
-			 	$('#futurehold-form').removeClass("error");
-			 	$('#futurehold-copyNumber').text(result[0].copyNumber);
-			 	$('#futurehold-expectedDate').text(result[0].availableDate);
-				$('#futurehold-content').show();
+			 	if (result[0].availableDate == null) {
+			 		$("#futurehold-form").addClass("error");
+			 		$("#futurehold-error-header").text("Error");
+			 		$("#futurehold-error-body").text("Reserved books cannot be put on hold.");
+			 	} else {
+			 		 	$('#futurehold-form').removeClass("error");
+			 		 	$('#futurehold-copyNumber').text(result[0].copyNumber);
+			 		 	$('#futurehold-expectedDate').text(result[0].availableDate);
+			 			$('#futurehold-content').show();
+			 	}
 			},
 			error: function(xhr, status, error) {
 				$("#futurehold-form").addClass("error");
@@ -332,12 +374,19 @@ $(document).ready(function(){
 				isbn: $('#track-isbn').val()
 			},
 			 success: function(result){
-			 	$('#track-form').removeClass("error");
-			 	$('#track-floor').text(result[0].floorNumber);
-			 	$('#track-shelf').text(result[0].shelfNumber);
-			 	$('#track-aisle').text(result[0].aisleNumber);
-			 	$('#track-subject').text(result[0].subjectName);
-				$('#track-content').show();
+			 	if(result.length) {
+			 		$('#track-form').removeClass("error");
+				 	$('#track-floor').text(result[0].floorNumber);
+				 	$('#track-shelf').text(result[0].shelfNumber);
+				 	$('#track-aisle').text(result[0].aisleNumber);
+				 	$('#track-subject').text(result[0].subjectName);
+					$('#track-content').show();
+			 	} else {
+			 		$("#track-form").addClass("error");
+			 		$("#track-error-header").text("Error");
+			 		$("#track-error-body").text("Could not find the ISBN.");
+			 	}
+			 	
 			},
 			error: function(xhr, status, error) {
 				$("#track-form").addClass("error");
