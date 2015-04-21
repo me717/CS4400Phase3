@@ -420,8 +420,19 @@ router.post('/return', function(req, res, next) {
                             res.status(500);
                             res.send(error);  
                         }
-                        res.status(200);
-                        res.send(results);
+                        var stephenQuery = "SELECT * FROM Issues Where issueId = {issueId}";
+                        stephenQuery = format(stephenQuery, {
+                            issueId: req.body.issueId
+                        });
+                        executeQuery(stephenQuery, function(error, results, fields){
+                            if(error) {
+                                res.status(500);
+                                res.send(error);  
+                            } else {
+                                res.status(200);
+                                res.send(results);
+                            }
+                        })
                     });
                 }
             });
