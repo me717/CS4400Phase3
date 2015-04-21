@@ -96,6 +96,39 @@ router.get('/searchBooks', function(req, res, next) {
                 "AND (BookCopy.isCheckedOut = 0) " +
                 "AND (BookCopy.isOnHold = 0) " +
                 "AND (BookCopy.isDamaged = 0) " +
+                "AND (Book.isReserved = 0) " +
+                "GROUP BY Book.isbn ";
+    query = format(query, {
+        isbn: req.query.isbn,
+        edition: req.query.edition,
+        author: req.query.author,
+        title: req.query.title
+    });
+    executeQuery(query, function(error, results, fields){
+        if(error) {
+            res.status(500);
+            res.send(error);  
+        } else {
+            res.status(200);
+            res.send(results);
+        }
+    });
+});
+
+router.get('/searchReservedBooks', function(req, res, next) {
+    var query = "SELECT Book.isbn AS isbn, Book.title AS title, " + 
+                "BookCopy.copyNumber AS copyNumber, " + 
+                "Authors.name AS author, COUNT(*) AS numberAvailable, " +
+                "Book.edition AS edition " +
+                "FROM Book JOIN Authors ON Book.isbn = Authors.isbn " +
+                "JOIN BookCopy ON Book.isbn = BookCopy.isbn " +
+                "WHERE (Authors.name = '{author}' OR '{author}' = '') " +
+                "AND (Book.title = '{title}' OR '{title}' = '') " +
+                "AND (Book.isbn = '{isbn}' OR '{isbn}' = '') " + 
+                "AND (BookCopy.isCheckedOut = 0) " +
+                "AND (BookCopy.isOnHold = 0) " +
+                "AND (BookCopy.isDamaged = 0) " +
+                "AND (Book.isReserved = 1) " +
                 "GROUP BY Book.isbn ";
     query = format(query, {
         isbn: req.query.isbn,
@@ -165,7 +198,7 @@ router.get('/extensionInfo', function(req, res, next) {
    var issuesQuery = "SELECT dateOfIssue, extensionDate, returnDate, " +
                     "CURDATE() AS newExtensionDate, " +
                     "DATE_ADD(CURDATE(),  INTERVAL 14 DAY) AS newReturnDate " +
-                    "FROM ISSUES WHERE issueId = {issueId}";
+                    "FROM Issues WHERE issueId = {issueId}";
     issuesQuery = format(issuesQuery, {
         issueId: req.query.issueId
     });
@@ -174,9 +207,10 @@ router.get('/extensionInfo', function(req, res, next) {
             res.status(500);
             error.query = issuesQuery;
             res.send(error);  
-        }
-        res.status(200);
-        res.send(results);
+        } else {
+            res.status(200);
+            res.send(results);
+    }   }
     });
 });
 
@@ -421,6 +455,7 @@ router.post('/penalty', function(req, res, next) {
                             res.send(error);  
                         }
                         res.status(200);
+                        results.username = username;
                         res.send(results);
                     });
                 }
