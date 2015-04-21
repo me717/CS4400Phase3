@@ -120,15 +120,15 @@ router.post('/placeHold', function(req, res, next) {
         if(error) {
             console.log("DONE")
             res.status(500);
-            error.query = query;
+            error.query = updateQuery;
             res.send(error);
         }else{
 
             console.log("WORKED-1");
             var insertQuery = "INSERT INTO Issues (username, isbn, copyNumber, " + 
                                 "dateOfIssue, returnDate, extensionDate, countOfExtensions) " +
-                                "SELECT username, '{isbn}', {copyNumber}, " + 
-                                "CURDATE(), DATE_ADD(CURDATE(), CURDATE(), INTERVAL 17 DAY), 0 " +
+                                "SELECT username, '{isbn}', {copyNumber}, CURDATE(), " + 
+                                "CURDATE(), DATE_ADD(CURDATE(), INTERVAL 17 DAY), 0 " +
                                 "FROM StudentAndFaculty WHERE username = '{username}' AND isDebarred = 0";
             insertQuery = format(insertQuery, {
                 isbn: req.body.isbn,
@@ -139,6 +139,7 @@ router.post('/placeHold', function(req, res, next) {
             executeQuery(insertQuery, function(error, results, fields){
                 if(error) {
                     res.status(500);
+                    error.query = insertQuery;
                     res.send(error);  
                 }
                 res.status(200);
