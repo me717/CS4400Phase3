@@ -210,7 +210,7 @@ router.get('/extensionInfo', function(req, res, next) {
         } else {
             res.status(200);
             res.send(results);
-    }   }
+       }
     });
 });
 
