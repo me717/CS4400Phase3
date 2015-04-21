@@ -191,6 +191,7 @@ $(document).ready(function(){
 		$("#search-table").empty();
 		$('#search-form').show();
 		$('#hold-submit').removeClass("disabled");
+		$("#hold-message").hide();
 		$('#hold-content').hide();
 	});
 
@@ -218,11 +219,12 @@ $(document).ready(function(){
 					 	$("#hold-error").hide();
 					 	$("#hold-message").show();
 					 	$("#hold-message-header").text("Book checked out!");
-					 	$("#hold-message-body").text("Book Copy #" + hold_copyNumber + " is now on hold.");
+					 	$("#hold-message-body").text("Book Copy #" + hold_copyNumber + " is now on hold. Issue ID: " + result.insertId);
 					 	$('#hold-submit').addClass("disabled");
 					},
 					error: function(xhr, status, error) {
 						$("#hold-error").show();
+						$("#hold-message").hide();
 						$("#hold-error-header").text("Error");
 						$("#hold-error-body").text("Unable to place hold.");
 					}
@@ -230,6 +232,7 @@ $(document).ready(function(){
 			},
 			error: function(xhr, status, error) {
 				$("#hold-error").show();
+				$("#hold-message").hide();
 				$("#hold-error-header").text("Error");
 				$("#hold-error-body").text("Unable to find copy number");
 			}
