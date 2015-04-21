@@ -2,5 +2,31 @@ extends layout
 
 block content
   .ui.page.centered.grid
-    .twelve.wide.column
-      p asdkfjasdklfj
+    .eight.wide.column
+        h1(class="ui header") Track Book Location
+        form(class="ui form" id="track-form")
+            .ui.error.message
+                .header(id="track-error-header")
+                p(id="track-error-body")
+            .field
+                label ISBN
+                input(type="text" id="track-isbn" placeholder="ISBN")
+            .field
+                a(class="ui submit button" id="track-isbn-btn") Locate
+    .eight.wide.column
+        #track-content.ui.form
+            h1(class="ui header") Location Details
+            .two.fields
+                .field
+                    label Floor Number
+                    p(id="track-floor")
+                .field
+                    label Shelf Number
+                    p(id="track-shelf")
+            .two.fields
+                .field
+                    label Aisle Number
+                    p(id="track-aisle")
+                .field
+                    label Subject
+                    p(id="track-subject")

@@ -168,7 +168,7 @@ $(document).ready(function(){
 				isbn: hold_isbn
 			},
 			 success: function(result){
-				hold_copyNumber = result[0];
+				hold_copyNumber = result[0].copyNumber;
 				alert("copy number: " + hold_copyNumber);
 				$.ajax({
 					url: "db/placeHold",
@@ -284,4 +284,32 @@ $(document).ready(function(){
 			}
 		});
 	});
+
+	// track book screen
+	$('#track-content').hide();
+	$('#track-isbn-btn').click(function() {
+		$.ajax({ 
+			url: "db/trackLocation",
+			data: {
+				isbn: $('#track-isbn').val()
+			},
+			 success: function(result){
+			 	$('#track-form').removeClass("error");
+			 	// Fill these in when the alises come through
+			 	$('#track-floor').text(result[0].);
+			 	$('#track-shelf').text(result[0].);
+			 	$('#track-aisle').text(result[0].);
+			 	$('#track-subject').text(result[0].);
+				$('#track-content').show();
+			},
+			error: function(xhr, status, error) {
+				$("#track-form").addClass("error");
+				$("#track-error-header").text("Error");
+				$("#track-error-body").text("Could not find the ISBN.");
+			}
+		});
+	});
+
+
+
 });
