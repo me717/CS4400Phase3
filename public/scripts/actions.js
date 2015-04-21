@@ -367,4 +367,30 @@ $(document).ready(function(){
 			}
 		});
 	});
+
+	// lostdamaged screen
+	$('#penalty-lastUser-btn').click(function() {
+		$.ajax({ 
+			url: "db/penalty",
+			data: {
+				isbn: $('#penalty-isbn').val(),
+				copyNumber: $('#penalty-copyNumber').val()
+			},
+			method: "POST",
+			 success: function(result){
+			 	$('#penalty-form').removeClass("error");
+			 	$('#penalty-time').text(Date());
+			 	$('#penalty-lastUser').text(result.username);
+			 	$('#penalty-submit').removeClass("disabled");
+			},
+			error: function(xhr, status, error) {
+				$("#penalty-form").addClass("error");
+				$("#penalty-error-header").text("Error");
+				$("#penalty-error-body").text(error.message);
+			}
+		});
+		
+	});
+
+
 });
