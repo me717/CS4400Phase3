@@ -1,6 +1,8 @@
 $(document).ready(function(){
 	var username; // the user logged in
 
+	var months = ['', 'Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
 	// login page
 	$('#login-btn').click(function() {
 		$.ajax({
@@ -410,21 +412,21 @@ $(document).ready(function(){
 			 	$('#damaged-content').show();
 				$("#search-table").append(
 					"<tr>" +
-					"<td>" + result.month + '</td>' +
+					"<td>" + months[result.month] + '</td>' +
 					"<td>" + result.subject + '</td>' +
 					"<td>" + result.count + '</td>' +
 					"</tr>"
 				);
 				$("#search-table").append(
 					"<tr>" +
-					"<td>" + result.month + '</td>' +
+					"<td>" + months[result.month] + '</td>' +
 					"<td>" + result.subject + '</td>' +
 					"<td>" + result.count + '</td>' +
 					"</tr>"
 				);
 				$("#search-table").append(
 					"<tr>" +
-					"<td>" + result.month + '</td>' +
+					"<td>" + months[result.month] + '</td>' +
 					"<td>" + result.subject + '</td>' +
 					"<td>" + result.count + '</td>' +
 					"</tr>"
@@ -440,6 +442,64 @@ $(document).ready(function(){
 		});
 	});
 	
+	// popular books report
+	$.ajax({
+		url: "db/popularBooksReport",
+		 success: function(result){
+		 	result.forEach(function(item) {
+		 		$("#popular-table").append(
+		 			"<tr>" +
+		 			"<td>" + months[item.month] + '</td>' +
+		 			"<td>" + item.title + '</td>' +
+		 			"<td>" + item.count + '</td>' +
+		 			"</tr>"
+		 		);
+		 	});
+		},
+		error: function(xhr, status, error) {
+			alert("popular book report failed");
+		}
+	});
 
+	// frequent user report
+	$.ajax({
+		url: "db/frequentUserReport",
+		 success: function(result){
+		 	console.log(result);
+		 	result.forEach(function(item) {
+		 		$("#frequent-table").append(
+		 			"<tr>" +
+		 			"<td>" + months[item.month] + '</td>' +
+		 			"<td>" + StudentAndFaculty.firstname +
+		 			" " + StudentAndFaculty.lastname + '</td>' +
+		 			"<td>" + item.count + '</td>' +
+		 			"</tr>"
+		 		);
+		 	});
+		},
+		error: function(xhr, status, error) {
+			alert("frequent user report failed");
+		}
+	});
+
+	// popular subjects report
+	$.ajax({
+		url: "db/popularSubjectReport",
+		 success: function(result){
+		 	console.log(result);
+		 	result.forEach(function(item) {
+		 		$("#popularSubjects-table").append(
+		 			"<tr>" +
+		 			"<td>" + months[item.month] + '</td>' +
+		 			"<td>" + item.subject + '</td>' +
+		 			"<td>" + item.count + '</td>' +
+		 			"</tr>"
+		 		);
+		 	});
+		},
+		error: function(xhr, status, error) {
+			alert("popular subject report failed");
+		}
+	});
 
 });

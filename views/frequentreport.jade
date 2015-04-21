@@ -3,4 +3,12 @@ extends layout
 block content
   .ui.page.centered.grid
     .twelve.wide.column
-      p asdkfjasdklfj
+        h1(class="ui header" id="frequent-header") Frequent Users Report
+        #popular-content
+            table(class="ui table")
+                thead
+                    tr
+                        th Month
+                        th User Name
+                        th # of Checkouts
+                tbody(id="frequent-table")

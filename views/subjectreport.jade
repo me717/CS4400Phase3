@@ -3,4 +3,12 @@ extends layout
 block content
   .ui.page.centered.grid
     .twelve.wide.column
-      p asdkfjasdklfj
+        h1(class="ui header" id="popularSubjects-header") Popular Subjects Report
+        #popular-content
+            table(class="ui table")
+                thead
+                    tr
+                        th Month
+                        th Top Subject
+                        th # of Checkouts
+                tbody(id="popularSubjects-table")
