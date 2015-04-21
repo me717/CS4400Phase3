@@ -4,7 +4,10 @@ block content
   .ui.page.centered.grid
         .eight.wide.column
             h1(class="ui header") Library Database System
-            form(class="ui form" action="javascript:alert( 'success!' );")
+            form(class="ui form" id="login-form")
+                .ui.error.message
+                    .header(id="login-error-header")
+                    p(id="login-error-body")
                 .two.fields
                     field
                         label Username

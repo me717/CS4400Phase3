@@ -18,8 +18,9 @@ $(document).ready(function(){
 				window.location.href = "search";
 			},
 			error: function(xhr, status, error) {
-				console.log(error.message);
-				window.location.href = "";
+				$("#login-form").addClass("error");
+				$("#login-error-header").text("Unable to Login");
+				$("#login-error-body").text("Make sure your username and password are correct.");
 			}
 		});
 	});
