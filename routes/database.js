@@ -351,7 +351,7 @@ router.post('/checkout', function(req, res, next) {
                             stephenQuery = format(stephenQuery, {
                                 issueId: req.body.issueId
                             });
-                            executeQuery(query, function(error, results, fields){
+                            executeQuery(stephenQuery, function(error, results, fields){
                                 if(error) {
                                     res.status(500);
                                     res.send(error);  
