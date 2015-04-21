@@ -198,4 +198,29 @@ $(document).ready(function(){
 		});
 	});
 
+	// request a hold screen
+	$('#extension-content').hide();
+	$('#extension-issueid-btn').click(function() {
+		$.ajax({ // check this out, may be janky
+			url: "db/extensionInfo",
+			data: {
+				issueId: $('#extension-issueID').val()
+			},
+			 success: function(result){
+			 	$('#extension-form').removeClass("error");
+			 	$('#extension-originalcheckout').text(result.dateOfIssue);
+			 	$('#extension-currentextension').text(result.extensionDate);
+			 	$('#extension-newcheckout').text(result.newExtensionDate);
+			 	$('#extension-currentreturn').text(result.returnDate);
+			 	$('#extension-newreturn').text(result.newReturnDate);
+				$('#extension-content').show();
+			},
+			error: function(xhr, status, error) {
+				$("#extension-form").addClass("error");
+				$("#extension-error-header").text("Error");
+				$("#extension-error-body").text("Could not find the Issue ID.");
+			}
+		});
+	});
+
 });
