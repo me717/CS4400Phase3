@@ -522,27 +522,36 @@ $(document).ready(function(){
 			 success: function(result){
 			 	$('#damaged-form').removeClass("error");
 			 	$('#damaged-content').show();
-				$("#search-table").append(
-					"<tr>" +
-					"<td>" + months[result.month] + '</td>' +
-					"<td>" + result.subject + '</td>' +
-					"<td>" + result.count + '</td>' +
-					"</tr>"
-				);
-				$("#search-table").append(
-					"<tr>" +
-					"<td>" + months[result.month] + '</td>' +
-					"<td>" + result.subject + '</td>' +
-					"<td>" + result.count + '</td>' +
-					"</tr>"
-				);
-				$("#search-table").append(
-					"<tr>" +
-					"<td>" + months[result.month] + '</td>' +
-					"<td>" + result.subject + '</td>' +
-					"<td>" + result.count + '</td>' +
-					"</tr>"
-				);
+			 	result.forEach(function(item){
+					$("#damaged-table").append(
+						"<tr>" +
+						"<td>" + months[item.month] + '</td>' +
+						"<td>" + item.subject + '</td>' +
+						"<td>" + item.count + '</td>' +
+						"</tr>"
+					);
+			 	});
+				// $("#search-table").append(
+				// 	"<tr>" +
+				// 	"<td>" + months[result.month] + '</td>' +
+				// 	"<td>" + result.subject + '</td>' +
+				// 	"<td>" + result.count + '</td>' +
+				// 	"</tr>"
+				// );
+				// $("#search-table").append(
+				// 	"<tr>" +
+				// 	"<td>" + months[result.month] + '</td>' +
+				// 	"<td>" + result.subject + '</td>' +
+				// 	"<td>" + result.count + '</td>' +
+				// 	"</tr>"
+				// );
+				// $("#search-table").append(
+				// 	"<tr>" +
+				// 	"<td>" + months[result.month] + '</td>' +
+				// 	"<td>" + result.subject + '</td>' +
+				// 	"<td>" + result.count + '</td>' +
+				// 	"</tr>"
+				// );
 				$('.ui.checkbox').checkbox();
 			},
 			error: function(xhr, status, error) {
@@ -581,8 +590,8 @@ $(document).ready(function(){
 		 		$("#frequent-table").append(
 		 			"<tr>" +
 		 			"<td>" + months[item.month] + '</td>' +
-		 			"<td>" + StudentAndFaculty.firstname +
-		 			" " + StudentAndFaculty.lastname + '</td>' +
+		 			"<td>" + item.firstname +
+		 			" " + item.lastname + '</td>' +
 		 			"<td>" + item.count + '</td>' +
 		 			"</tr>"
 		 		);
